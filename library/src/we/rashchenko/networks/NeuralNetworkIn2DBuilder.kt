@@ -22,7 +22,7 @@ abstract class NeuralNetworkIn2DBuilder(private val nn: NeuralNetworkIn2DSpace) 
 
 	fun addEnvironment(environment: Environment){
 		environment.externalSignals.zip(environmentInputsPositionSampler(environment)).forEach { (neuron, coordinate)->
-			nn.add(neuron, coordinate)
+			nn.addExternal(neuron, coordinate)
 			coordinateNeurons[coordinate] = neuron
 		}
 	}
