@@ -47,6 +47,9 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 		}
 		currentTickNeurons.forEach{
 			it.update(neuronFeedbacks[it]!!.getFeedback(), timeStep)
+			if (it.active) {
+				nextTickNeurons.add(it)
+			}
 		}
 		timeStep++
 	}
