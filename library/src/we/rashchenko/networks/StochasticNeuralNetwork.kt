@@ -20,7 +20,7 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	override fun getNeuronId(neuron: BinaryNeuron): Int? = neuronIds[neuron]
 
 	override fun add(neuron: BinaryNeuron){
-		neuronIds[neuron] = randomIds.take(1).first()  // @todo does it work?
+		neuronIds[neuron] = randomIds.first()
 		connections[neuron] = mutableListOf()
 		backwardConnections[neuron] = mutableListOf()
 		neuronFeedbacks[neuron] = ExponentialMovingAverage(0.0)
