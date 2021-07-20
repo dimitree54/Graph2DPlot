@@ -10,8 +10,13 @@ repositories {
 }
 
 dependencies {
+    // using shared code
+    implementation(project(":library"))
+
+    // default dependencies for Compose app
     implementation(kotlin("stdlib"))
     implementation(compose.desktop.currentOs)
+
+    // for using coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1")
-    implementation(project(":library"))
 }
