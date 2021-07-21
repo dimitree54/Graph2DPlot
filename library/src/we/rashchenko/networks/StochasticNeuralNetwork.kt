@@ -39,7 +39,7 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	private var nextTickNeurons = mutableSetOf<BinaryNeuron>()
 	override fun tick(){
 		val currentTickNeurons = nextTickNeurons
-		nextTickNeurons = externalNeurons.toMutableSet()
+		nextTickNeurons = mutableSetOf()
 		currentTickNeurons.forEach { source->
 			connections[source]!!.forEach { receiver->
 				touch(source, receiver)
@@ -51,18 +51,19 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 				nextTickNeurons.add(it)
 			}
 		}
+		nextTickNeurons.addAll(externalNeurons)
 		timeStep++
 	}
 
 	override fun touch(source: BinaryNeuron, receiver: BinaryNeuron) {
 		val sourceNeuronId = neuronIds[source]!!
-		val wasActive = receiver.active
-		// @todo can we do not touch and do not update if already active? Consider external receiver case.
-		receiver.touch(sourceNeuronId, timeStep)
-		neuronFeedbacks[source]!!.update(receiver.getFeedback(sourceNeuronId))
-		if (receiver.active && !wasActive){
-			nextTickNeurons.add(receiver)
-			onNeuronActivation(receiver)
+		if (receiver !in nextTickNeurons) {
+			receiver.touch(sourceNeuronId, timeStep)
+			if (receiver.active) {
+				neuronFeedbacks[source]!!.update(receiver.getFeedback(sourceNeuronId))
+				nextTickNeurons.add(receiver)
+				onNeuronActivation(receiver)
+			}
 		}
 	}
 

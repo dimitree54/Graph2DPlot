@@ -34,5 +34,9 @@ open class StochasticBinaryNeuron: BinaryNeuron {
 		return Feedback(0.0)
 	}
 
-	override fun update(feedback: Feedback, timeStep: Long) {}
+	override fun update(feedback: Feedback, timeStep: Long) {
+		if (timeStep != lastTimeStep){
+			internalActive = false
+		}
+	}
 }
