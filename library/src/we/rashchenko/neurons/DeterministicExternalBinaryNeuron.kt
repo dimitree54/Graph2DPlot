@@ -4,7 +4,7 @@ import we.rashchenko.feedbacks.Feedback
 
 class DeterministicExternalBinaryNeuron : ExternalBinaryNeuron {
 	private val feedbacks = mutableMapOf<Int, Feedback>()
-	override fun touch(sourceId: Int, timeStep: Int) {
+	override fun touch(sourceId: Int, timeStep: Long) {
 		feedbacks[sourceId] = if (active) Feedback.VERY_POSITIVE else Feedback.VERY_NEGATIVE
 	}
 
@@ -14,7 +14,7 @@ class DeterministicExternalBinaryNeuron : ExternalBinaryNeuron {
 
 	override fun getFeedback(sourceId: Int): Feedback = feedbacks.getOrDefault(sourceId, Feedback.NEUTRAL)
 
-	override fun update(feedback: Feedback, timeStep: Int) {}
+	override fun update(feedback: Feedback, timeStep: Long) {}
 
 	override var active: Boolean = false
 }

@@ -6,7 +6,7 @@ interface BinaryNeuralNetwork{
 	val neurons: Collection<BinaryNeuron>
 	val externalNeurons: Collection<BinaryNeuron>
 	val connections: Map<BinaryNeuron, Collection<BinaryNeuron>>
-	val timeStep: Int
+	val timeStep: Long
 
 	fun add(neuron: BinaryNeuron)
 	fun addExternal(neuron: BinaryNeuron)

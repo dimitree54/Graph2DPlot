@@ -13,8 +13,8 @@ open class DeterministicBinaryNeuron: BinaryNeuron {
 
 	override val active: Boolean = activation > threshold
 
-	private var lastTimeStep = Int.MIN_VALUE
-	override fun touch(sourceId: Int, timeStep: Int) {
+	private var lastTimeStep = Long.MIN_VALUE
+	override fun touch(sourceId: Int, timeStep: Long) {
 		if (lastTimeStep != timeStep){
 			activation = 0.0
 		}
@@ -30,5 +30,5 @@ open class DeterministicBinaryNeuron: BinaryNeuron {
 		return Feedback(0.0)
 	}
 
-	override fun update(feedback: Feedback, timeStep: Int) {}
+	override fun update(feedback: Feedback, timeStep: Long) {}
 }

@@ -9,7 +9,7 @@ import we.rashchenko.utils.randomIds
 class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	override val externalNeurons = mutableSetOf<BinaryNeuron>()
 	override val connections = mutableMapOf<BinaryNeuron, MutableList<BinaryNeuron>>()
-	override var timeStep: Int = 0
+	override var timeStep: Long = 0
 		private set
 
 	private val neuronIds = mutableMapOf<BinaryNeuron, Int>()

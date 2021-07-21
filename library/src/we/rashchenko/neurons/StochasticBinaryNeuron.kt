@@ -8,15 +8,15 @@ open class StochasticBinaryNeuron: BinaryNeuron {
 	private val weights = mutableMapOf<Int, Double>()
 
 	private fun initializeNewWeight(): Double{
-		return 0.01
+		return 0.1
 	}
 
 	private var internalActive: Boolean = false
 	override val active: Boolean
 		get() = internalActive
 
-	private var lastTimeStep = Int.MIN_VALUE
-	override fun touch(sourceId: Int, timeStep: Int) {
+	private var lastTimeStep = Long.MIN_VALUE
+	override fun touch(sourceId: Int, timeStep: Long) {
 		if (timeStep != lastTimeStep){
 			internalActive = false
 		}
@@ -34,5 +34,5 @@ open class StochasticBinaryNeuron: BinaryNeuron {
 		return Feedback(0.0)
 	}
 
-	override fun update(feedback: Feedback, timeStep: Int) {}
+	override fun update(feedback: Feedback, timeStep: Long) {}
 }

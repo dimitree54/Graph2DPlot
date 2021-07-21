@@ -11,7 +11,7 @@ interface BinaryNeuron{
 	 * The set of possible incoming sourceId is dynamic and may change with time.
 	 * Here active property may be changed.
 	 */
-	fun touch(sourceId: Int, timeStep: Int)
+	fun touch(sourceId: Int, timeStep: Long)
 
 	/**
 	 * External controller have decided to break connection between this neuron and other neuron with sourceId.
@@ -30,5 +30,5 @@ interface BinaryNeuron{
 	 * But if it called anf active==false it means that this neuron activates too rarely and become candidate for
 	 *  pruning. In that case you can try to do something (for example increase activation probability) to avoid that.
 	 */
-	fun update(feedback: Feedback, timeStep: Int)
+	fun update(feedback: Feedback, timeStep: Long)
 }
