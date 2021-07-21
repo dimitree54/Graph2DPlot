@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,12 +34,14 @@ fun DrawScope.drawNN(nn2d: NeuralNetworkIn2DSpace){
 	nn2d.getConnections(scale).forEach { (source, receiver) ->
 		drawLine(connectionColor, Offset(source.x, source.y), Offset(receiver.x, receiver.y)) }
 	drawPoints(nn2d.getExternalCoordinates(scale).map { Offset(it.x, it.y) },
-		PointMode.Points, externalColor, strokeWidth = 15f)
+		PointMode.Points, externalColor, strokeWidth = 15f, cap = StrokeCap.Round)
 }
 
 fun DrawScope.drawNNState(activePositions: Collection<Vector2>, passivePositions: Collection<Vector2>){
-	drawPoints(activePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorActive, strokeWidth = 5f)
-	drawPoints(passivePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorPassive, strokeWidth = 5f)
+	drawPoints(activePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorActive,
+		strokeWidth = 5f, cap = StrokeCap.Round)
+	drawPoints(passivePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorPassive,
+		strokeWidth = 5f, cap = StrokeCap.Round)
 }
 
 @Composable
