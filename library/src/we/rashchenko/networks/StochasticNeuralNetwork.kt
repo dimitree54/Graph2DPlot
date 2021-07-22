@@ -26,6 +26,14 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 		neuronFeedbacks[neuron] = ExponentialMovingAverage(0.0)
 	}
 
+	override fun remove(neuron: BinaryNeuron) {
+		connections[neuron]?.forEach { it.forgetSource(neuronIds[neuron]!!) }
+		connections.remove(neuron)
+		backwardConnections.remove(neuron)
+		neuronFeedbacks.remove(neuron)
+		neuronIds.remove(neuron)
+	}
+
 	override fun addExternal(neuron: BinaryNeuron) {
 		add(neuron)
 		externalNeurons.add(neuron)

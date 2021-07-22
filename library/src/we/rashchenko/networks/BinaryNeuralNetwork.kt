@@ -9,6 +9,7 @@ interface BinaryNeuralNetwork{
 	val timeStep: Long
 
 	fun add(neuron: BinaryNeuron)
+	fun remove(neuron: BinaryNeuron)
 	fun addExternal(neuron: BinaryNeuron)
 	fun addConnection(fromNeuron: BinaryNeuron, toNeuron: BinaryNeuron)
 	fun getNeuronId(neuron: BinaryNeuron): Int?
