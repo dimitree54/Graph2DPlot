@@ -2,7 +2,6 @@ package we.rashchenko.neurons
 
 import we.rashchenko.feedbacks.Feedback
 
-// @todo choose limitations for feedback
 interface BinaryNeuron{
 	val active: Boolean
 

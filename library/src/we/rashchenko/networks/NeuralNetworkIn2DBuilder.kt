@@ -27,7 +27,6 @@ abstract class NeuralNetworkIn2DBuilder(private val nn: NeuralNetworkIn2DSpace) 
 		}
 	}
 
-	// @todo add dynamic connection of newly added neurons
 	fun addConnections(){
 		val connections = connectionsSampler(coordinateNeurons.keys)
 		coordinateNeurons.forEach{ (sourceCoordinate, sourceNeuron) ->
