@@ -1,5 +1,9 @@
 package we.rashchenko.networks
 
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
 import we.rashchenko.feedbacks.getFeedback
 import we.rashchenko.feedbacks.update
 import we.rashchenko.neurons.BinaryNeuron
@@ -84,4 +88,23 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	}
 
 	override fun onNeuronActivation(neuron: BinaryNeuron) {}
+
+	override var running: Boolean = false
+		private set
+
+	@ObsoleteCoroutinesApi
+	override suspend fun run(onTick: () -> Unit) {
+		coroutineScope{
+			launch(context = newSingleThreadContext("EnvironmentThread")) {
+				while (running){
+					tick()
+					onTick()
+				}
+			}
+		}
+	}
+
+	override fun pause() {
+		running = false
+	}
 }

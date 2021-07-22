@@ -16,4 +16,8 @@ interface BinaryNeuralNetwork{
 	fun touch(source: BinaryNeuron, receiver: BinaryNeuron)
 	fun onNeuronActivation(neuron: BinaryNeuron)
 	fun tick()
+
+	val running: Boolean
+	suspend fun run(onTick: ()->Unit)
+	fun pause()
 }
