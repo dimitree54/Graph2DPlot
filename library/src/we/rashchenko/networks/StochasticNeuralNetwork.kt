@@ -37,18 +37,21 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	}
 
 	private var nextTickNeurons = mutableSetOf<BinaryNeuron>()
+	private val setAddingLock = Object()
 	override fun tick(){
 		val currentTickNeurons = nextTickNeurons
 		nextTickNeurons = mutableSetOf()
-		currentTickNeurons.forEach { source->
+		currentTickNeurons.parallelStream().forEach { source->
 			connections[source]!!.forEach { receiver->
 				touch(source, receiver)
 			}
 		}
-		currentTickNeurons.forEach{
+		currentTickNeurons.parallelStream().forEach{
 			it.update(neuronFeedbacks[it]!!.getFeedback(), timeStep)
 			if (it.active) {
-				nextTickNeurons.add(it)
+				synchronized(setAddingLock){
+					nextTickNeurons.add(it)
+				}
 			}
 		}
 		nextTickNeurons.addAll(externalNeurons)
@@ -56,13 +59,18 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 	}
 
 	override fun touch(source: BinaryNeuron, receiver: BinaryNeuron) {
-		val sourceNeuronId = neuronIds[source]!!
-		if (receiver !in nextTickNeurons) {
-			receiver.touch(sourceNeuronId, timeStep)
-			if (receiver.active) {
-				neuronFeedbacks[source]!!.update(receiver.getFeedback(sourceNeuronId))
-				nextTickNeurons.add(receiver)
-				onNeuronActivation(receiver)
+		synchronized(receiver) {
+			val sourceNeuronId = neuronIds[source]!!
+			if (receiver !in nextTickNeurons) {
+				receiver.touch(sourceNeuronId, timeStep)
+				if (receiver.active) {
+					val newUpdate = receiver.getFeedback(sourceNeuronId)
+					synchronized(setAddingLock) {
+						neuronFeedbacks[source]!!.update(newUpdate)
+						nextTickNeurons.add(receiver)
+					}
+					onNeuronActivation(receiver)
+				}
 			}
 		}
 	}
