@@ -20,6 +20,7 @@ import we.rashchenko.neurons.BinaryNeuron
 import we.rashchenko.neurons.StochasticBinaryNeuron
 import we.rashchenko.utils.Vector2
 import we.rashchenko.utils.kNearest
+import we.rashchenko.utils.rectangularPositionSampler
 import java.util.*
 import kotlin.math.max
 
@@ -30,21 +31,8 @@ val backColor = Color.Black
 val connectionColor = Color.Gray
 
 
-val random = Random()
-fun rectangularPositionSampler(rectangle: Vector2 = Vector2(2560f, 1600f)): Vector2 {
-	val maxDim = max(rectangle.x, rectangle.y)
-	var x: Float
-	var y: Float
-	while (true) {
-		x = random.nextFloat()
-		y = random.nextFloat()
-		if (x < rectangle.x / maxDim && y < rectangle.y / maxDim) {
-			break
-		}
-	}
+val targetScreenSize = Vector2(2560f, 1600f)
 
-	return Vector2(x * maxDim / rectangle.x, y * maxDim / rectangle.y)
-}
 
 @ObsoleteCoroutinesApi
 fun main() {
@@ -52,10 +40,10 @@ fun main() {
 	val nn = NeuralNetworkIn2DSpace(StochasticNeuralNetwork())
 	object : NeuralNetworkIn2DBuilder(nn) {
 		override fun neuronsWithPositionSampler(): Pair<BinaryNeuron, Vector2> =
-			StochasticBinaryNeuron() to rectangularPositionSampler()
+			StochasticBinaryNeuron() to rectangularPositionSampler(targetScreenSize)
 
 		override fun environmentInputsPositionSampler(environment: Environment): Collection<Vector2> =
-			environment.externalSignals.map { rectangularPositionSampler() }
+			environment.externalSignals.map { rectangularPositionSampler(targetScreenSize) }
 
 		override fun connectionsSampler(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>> =
 			kNearest(5, allPositions)
