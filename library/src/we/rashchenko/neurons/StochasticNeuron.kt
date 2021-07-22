@@ -15,15 +15,12 @@ open class StochasticNeuron: Neuron {
 	override val active: Boolean
 		get() = internalActive
 
-	private var lastTimeStep = Long.MIN_VALUE
+	private var activatedOnTimeStep = Long.MIN_VALUE
 	override fun touch(sourceId: Int, timeStep: Long) {
-		if (timeStep != lastTimeStep){
-			internalActive = false
-		}
 		if (random.nextDouble() < weights.getOrPut(sourceId, ::initializeNewWeight)){
 			internalActive = true
+			activatedOnTimeStep = timeStep
 		}
-		lastTimeStep = timeStep
 	}
 
 	override fun forgetSource(sourceId: Int) {
@@ -35,7 +32,7 @@ open class StochasticNeuron: Neuron {
 	}
 
 	override fun update(feedback: Feedback, timeStep: Long) {
-		if (timeStep != lastTimeStep){
+		if (timeStep != activatedOnTimeStep){
 			internalActive = false
 		}
 	}
