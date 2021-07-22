@@ -2,7 +2,7 @@ package we.rashchenko.neurons
 
 import we.rashchenko.feedbacks.Feedback
 
-interface BinaryNeuron{
+interface Neuron{
 	val active: Boolean
 
 	/**

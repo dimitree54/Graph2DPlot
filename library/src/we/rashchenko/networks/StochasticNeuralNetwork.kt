@@ -6,31 +6,31 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import we.rashchenko.feedbacks.getFeedback
 import we.rashchenko.feedbacks.update
-import we.rashchenko.neurons.BinaryNeuron
+import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.randomIds
 
-class StochasticNeuralNetwork: BinaryNeuralNetwork {
-	override val externalNeurons = mutableSetOf<BinaryNeuron>()
-	override val connections = mutableMapOf<BinaryNeuron, MutableList<BinaryNeuron>>()
+class StochasticNeuralNetwork: NeuralNetwork {
+	override val externalNeurons = mutableSetOf<Neuron>()
+	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
 	override var timeStep: Long = 0
 		private set
 
-	private val neuronIds = mutableMapOf<BinaryNeuron, Int>()
-	private val backwardConnections = mutableMapOf<BinaryNeuron, MutableList<BinaryNeuron>>()
-	private val neuronFeedbacks = mutableMapOf<BinaryNeuron, ExponentialMovingAverage>()
+	private val neuronIds = mutableMapOf<Neuron, Int>()
+	private val backwardConnections = mutableMapOf<Neuron, MutableList<Neuron>>()
+	private val neuronFeedbacks = mutableMapOf<Neuron, ExponentialMovingAverage>()
 
-	override val neurons: Collection<BinaryNeuron> = neuronIds.keys
-	override fun getNeuronId(neuron: BinaryNeuron): Int? = neuronIds[neuron]
+	override val neurons: Collection<Neuron> = neuronIds.keys
+	override fun getNeuronId(neuron: Neuron): Int? = neuronIds[neuron]
 
-	override fun add(neuron: BinaryNeuron){
+	override fun add(neuron: Neuron){
 		neuronIds[neuron] = randomIds.first()
 		connections[neuron] = mutableListOf()
 		backwardConnections[neuron] = mutableListOf()
 		neuronFeedbacks[neuron] = ExponentialMovingAverage(0.0)
 	}
 
-	override fun remove(neuron: BinaryNeuron) {
+	override fun remove(neuron: Neuron) {
 		connections[neuron]?.forEach { it.forgetSource(neuronIds[neuron]!!) }
 		connections.remove(neuron)
 		backwardConnections.remove(neuron)
@@ -38,17 +38,17 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 		neuronIds.remove(neuron)
 	}
 
-	override fun addExternal(neuron: BinaryNeuron) {
+	override fun addExternal(neuron: Neuron) {
 		add(neuron)
 		externalNeurons.add(neuron)
 	}
 
-	override fun addConnection(fromNeuron: BinaryNeuron, toNeuron: BinaryNeuron){
+	override fun addConnection(fromNeuron: Neuron, toNeuron: Neuron){
 		connections[fromNeuron]!!.add(toNeuron)
 		backwardConnections[toNeuron]!!.add(fromNeuron)
 	}
 
-	private var nextTickNeurons = mutableSetOf<BinaryNeuron>()
+	private var nextTickNeurons = mutableSetOf<Neuron>()
 	private val setAddingLock = Object()
 	override fun tick(){
 		val currentTickNeurons = nextTickNeurons
@@ -70,7 +70,7 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 		timeStep++
 	}
 
-	override fun touch(source: BinaryNeuron, receiver: BinaryNeuron) {
+	override fun touch(source: Neuron, receiver: Neuron) {
 		synchronized(receiver) {
 			val sourceNeuronId = neuronIds[source]!!
 			if (receiver !in nextTickNeurons) {
@@ -87,7 +87,7 @@ class StochasticNeuralNetwork: BinaryNeuralNetwork {
 		}
 	}
 
-	override fun onNeuronActivation(neuron: BinaryNeuron) {}
+	override fun onNeuronActivation(neuron: Neuron) {}
 
 	override var running: Boolean = false
 		private set

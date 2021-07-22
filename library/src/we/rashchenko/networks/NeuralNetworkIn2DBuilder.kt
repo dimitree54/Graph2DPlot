@@ -1,16 +1,16 @@
 package we.rashchenko.networks
 
 import we.rashchenko.environments.Environment
-import we.rashchenko.neurons.BinaryNeuron
+import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Vector2
 
 
 abstract class NeuralNetworkIn2DBuilder(private val nn: NeuralNetworkIn2DSpace) {
-	abstract fun neuronsWithPositionSampler(): Pair<BinaryNeuron, Vector2>
+	abstract fun neuronsWithPositionSampler(): Pair<Neuron, Vector2>
 	abstract fun environmentInputsPositionSampler(environment: Environment): Collection<Vector2>
 	abstract fun connectionsSampler(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>>
 
-	private val coordinateNeurons = mutableMapOf<Vector2, BinaryNeuron>()
+	private val coordinateNeurons = mutableMapOf<Vector2, Neuron>()
 
 	fun addNeurons(numberOfNeurons: Int){
 		repeat(numberOfNeurons){

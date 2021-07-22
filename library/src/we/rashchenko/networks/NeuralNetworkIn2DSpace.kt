@@ -1,19 +1,19 @@
 package we.rashchenko.networks
 
-import we.rashchenko.neurons.BinaryNeuron
+import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Vector2
 
-class NeuralNetworkIn2DSpace(private val nn: BinaryNeuralNetwork): BinaryNeuralNetwork by nn {
-	private val positions = mutableMapOf<BinaryNeuron, Vector2>()
-	fun add(neuron: BinaryNeuron, position: Vector2){
+class NeuralNetworkIn2DSpace(private val nn: NeuralNetwork): NeuralNetwork by nn {
+	private val positions = mutableMapOf<Neuron, Vector2>()
+	fun add(neuron: Neuron, position: Vector2){
 		nn.add(neuron)
 		positions[neuron] = position
 	}
-	fun addExternal(neuron: BinaryNeuron, position: Vector2){
+	fun addExternal(neuron: Neuron, position: Vector2){
 		nn.addExternal(neuron)
 		positions[neuron] = position
 	}
-	fun getPosition(neuron: BinaryNeuron): Vector2?{
+	fun getPosition(neuron: Neuron): Vector2?{
 		return positions[neuron]
 	}
 }

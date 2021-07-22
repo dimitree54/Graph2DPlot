@@ -16,13 +16,11 @@ import we.rashchenko.networks.NeuralNetworkIn2DBuilder
 import we.rashchenko.networks.NeuralNetworkIn2DSpace
 import we.rashchenko.networks.StochasticNeuralNetwork
 import we.rashchenko.networks.getActiveAndPassiveCoordinates
-import we.rashchenko.neurons.BinaryNeuron
-import we.rashchenko.neurons.StochasticBinaryNeuron
+import we.rashchenko.neurons.Neuron
+import we.rashchenko.neurons.StochasticNeuron
 import we.rashchenko.utils.Vector2
 import we.rashchenko.utils.kNearest
 import we.rashchenko.utils.rectangularPositionSampler
-import java.util.*
-import kotlin.math.max
 
 val externalColor = Color.Blue
 val colorActive = Color.Green
@@ -36,11 +34,11 @@ val targetScreenSize = Vector2(2560f, 1600f)
 
 @ObsoleteCoroutinesApi
 fun main() {
-	val environment = SimpleEnvironment()
+	val environment = SimpleEnvironment(100)
 	val nn = NeuralNetworkIn2DSpace(StochasticNeuralNetwork())
 	object : NeuralNetworkIn2DBuilder(nn) {
-		override fun neuronsWithPositionSampler(): Pair<BinaryNeuron, Vector2> =
-			StochasticBinaryNeuron() to rectangularPositionSampler(targetScreenSize)
+		override fun neuronsWithPositionSampler(): Pair<Neuron, Vector2> =
+			StochasticNeuron() to rectangularPositionSampler(targetScreenSize)
 
 		override fun environmentInputsPositionSampler(environment: Environment): Collection<Vector2> =
 			environment.externalSignals.map { rectangularPositionSampler(targetScreenSize) }

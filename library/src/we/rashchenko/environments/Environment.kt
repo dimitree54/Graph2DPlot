@@ -1,9 +1,9 @@
 package we.rashchenko.environments
 
-import we.rashchenko.neurons.ExternalBinaryNeuron
+import we.rashchenko.neurons.ExternalNeuron
 
 interface Environment {
-	val externalSignals: Collection<ExternalBinaryNeuron>
+	val externalSignals: Collection<ExternalNeuron>
 	fun tick()
 	val timeStep: Long
 

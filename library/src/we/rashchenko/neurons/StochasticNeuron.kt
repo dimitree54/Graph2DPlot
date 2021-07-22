@@ -3,7 +3,7 @@ package we.rashchenko.neurons
 import we.rashchenko.feedbacks.Feedback
 import java.util.Random
 
-open class StochasticBinaryNeuron: BinaryNeuron {
+open class StochasticNeuron: Neuron {
 	private val random = Random()
 	private val weights = mutableMapOf<Int, Double>()
 

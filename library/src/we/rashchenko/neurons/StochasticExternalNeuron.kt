@@ -2,7 +2,7 @@ package we.rashchenko.neurons
 
 import we.rashchenko.feedbacks.Feedback
 
-class StochasticExternalBinaryNeuron : StochasticBinaryNeuron(), ExternalBinaryNeuron {
+class StochasticExternalNeuron : StochasticNeuron(), ExternalNeuron {
 	private val feedbacks = mutableMapOf<Int, Feedback>()
 	override fun touch(sourceId: Int, timeStep: Long) {
 		super.touch(sourceId, timeStep)

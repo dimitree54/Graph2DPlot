@@ -4,13 +4,13 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
-import we.rashchenko.neurons.StochasticExternalBinaryNeuron
-import we.rashchenko.neurons.ExternalBinaryNeuron
+import we.rashchenko.neurons.StochasticExternalNeuron
+import we.rashchenko.neurons.ExternalNeuron
 import java.util.*
 
 class SimpleEnvironment(private val tickPeriod: Int) : Environment {
-	override val externalSignals: Collection<ExternalBinaryNeuron> =
-		listOf(StochasticExternalBinaryNeuron(), StochasticExternalBinaryNeuron())
+	override val externalSignals: Collection<ExternalNeuron> =
+		listOf(StochasticExternalNeuron(), StochasticExternalNeuron())
 
 	override var timeStep: Long = 0
 		private set
