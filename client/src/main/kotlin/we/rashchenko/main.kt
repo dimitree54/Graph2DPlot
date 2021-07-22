@@ -71,7 +71,7 @@ fun main() {
 		} else {
 			Column {
 				Text("TPS: ${ticksPerSec.value.toInt()}")
-				Button(onClick = { onRunClick(nnRunning, coroutineScope, nn, visualMode, nnState) }) {
+				Button(onClick = { onRunClick(nnRunning, coroutineScope, nn, environment, visualMode, nnState) }) {
 					Text(if (nnRunning.value) "Pause NN" else "Run NN")
 				}
 				Button(onClick = { visualMode.value = true }) {
@@ -87,6 +87,7 @@ fun onRunClick(
 	nnRunning: MutableState<Boolean>,
 	coroutineScope: CoroutineScope,
 	nn: NeuralNetworkIn2DSpace,
+	environment: Environment,
 	visualMode: MutableState<Boolean>,
 	nnState: MutableState<Pair<List<Vector2>, List<Vector2>>>
 ) {
@@ -94,6 +95,7 @@ fun onRunClick(
 	coroutineScope.launch(context = newSingleThreadContext("NNThread")) {
 		while (nnRunning.value) {
 			nn.tick()
+			environment.tick()
 			if (visualMode.value) {
 				nnState.value = nn.getActiveAndPassiveCoordinates()
 				delay(100)
