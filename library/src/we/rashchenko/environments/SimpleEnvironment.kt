@@ -1,16 +1,13 @@
 package we.rashchenko.environments
 
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import we.rashchenko.neurons.StochasticExternalNeuron
-import we.rashchenko.neurons.ExternalNeuron
+import we.rashchenko.neurons.ExternallyControlledNeuron
+import we.rashchenko.neurons.ExternallyControlledActivity
+import we.rashchenko.neurons.StochasticNeuron
 import java.util.*
 
 class SimpleEnvironment(private val tickPeriod: Int) : Environment {
-	override val externalSignals: Collection<ExternalNeuron> =
-		listOf(StochasticExternalNeuron(), StochasticExternalNeuron())
+	override val externalSignals: Collection<ExternallyControlledActivity> =
+		listOf(ExternallyControlledNeuron(StochasticNeuron()), ExternallyControlledNeuron(StochasticNeuron()))
 
 	override var timeStep: Long = 0
 		private set
@@ -19,27 +16,13 @@ class SimpleEnvironment(private val tickPeriod: Int) : Environment {
 	override fun tick(){
 		if (timeStep % tickPeriod == 0L){
 			val newValue = random.nextBoolean()
-			externalSignals.forEach { it.active = newValue }
+			externalSignals.forEach {
+				it.active = newValue
+				onSignalUpdate(it, newValue)
+			}
 		}
 		timeStep++
 	}
 
-	override var running: Boolean = false
-		private set
-
-	@ObsoleteCoroutinesApi
-	override suspend fun run(onTick: ()->Unit) {
-		coroutineScope{
-			launch(context = newSingleThreadContext("EnvironmentThread")) {
-				while (running){
-					tick()
-					onTick()
-				}
-			}
-		}
-	}
-
-	override fun pause() {
-		running = false
-	}
+	override fun onSignalUpdate(neuron: ExternallyControlledActivity, newValue: Boolean) { }
 }

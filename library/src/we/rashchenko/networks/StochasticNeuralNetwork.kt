@@ -56,6 +56,7 @@ class StochasticNeuralNetwork: NeuralNetwork {
 		currentTickNeurons.parallelStream().forEach { source->
 			connections[source]!!.forEach { receiver->
 				touch(source, receiver)
+			// @ todo before touching check that source still active (especially for external)
 			}
 		}
 		currentTickNeurons.parallelStream().forEach{
