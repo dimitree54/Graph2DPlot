@@ -6,6 +6,7 @@ import java.util.Random
 open class StochasticNeuron: Neuron {
 	private val random = Random()
 	private val weights = mutableMapOf<Int, Double>()
+	private val feedbacks = mutableMapOf<Int, Feedback>()
 
 	private fun initializeNewWeight(): Double{
 		return 0.1
@@ -25,11 +26,10 @@ open class StochasticNeuron: Neuron {
 
 	override fun forgetSource(sourceId: Int) {
 		weights.remove(sourceId)
+		feedbacks.remove(sourceId)
 	}
 
-	override fun getFeedback(sourceId: Int): Feedback {
-		return Feedback(0.0)
-	}
+	override fun getFeedback(sourceId: Int): Feedback = feedbacks.getOrDefault(sourceId, Feedback.NEUTRAL)
 
 	override fun update(feedback: Feedback, timeStep: Long) {
 		if (timeStep != activatedOnTimeStep){
