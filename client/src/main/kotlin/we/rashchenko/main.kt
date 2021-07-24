@@ -1,6 +1,7 @@
 package we.rashchenko
 
 import androidx.compose.desktop.Window
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -34,13 +35,14 @@ val connectionColor = Color.Gray
 val targetScreenSize = Vector2(2560f, 1600f)
 
 
+@ExperimentalFoundationApi
 @ObsoleteCoroutinesApi
 fun main() {
 	val evalEnvironment = SimpleEnvironment(100).let {
 		EvaluationEnvironment(
 			0.01, 20,
-				it, setOf(it.externalSignals.last()), lossFn = ::hemmingDistance
-			)
+			it, setOf(it.externalSignals.last()), lossFn = ::hemmingDistance
+		)
 	}
 	val nn = NeuralNetworkIn2DSpace(StochasticNeuralNetwork())
 	object : NeuralNetworkIn2DBuilder(nn) {
@@ -62,7 +64,7 @@ fun main() {
 		val loss = remember { mutableStateOf(0.0) }
 		val ticksPerSec = remember { mutableStateOf(0L) }
 		val nnRunning = remember { mutableStateOf(false) }
-		val visualMode = remember { mutableStateOf(false) }
+		val visualMode = remember { mutableStateOf(true) }
 		val nnState = remember { mutableStateOf(Pair(emptyList<Vector2>(), emptyList<Vector2>())) }
 		val coroutineScope = rememberCoroutineScope()
 		coroutineScope.launch {
@@ -74,13 +76,30 @@ fun main() {
 			}
 		}
 		if (visualMode.value) {
-			networkDrawer(nn, nnState, onClick = { visualMode.value = false })
-			Text("TPS: ${ticksPerSec.value.toInt()}", color = Color.Yellow)
+			networkDrawer(
+				nn,
+				nnState,
+				onLongClick = { visualMode.value = false },
+				onClick = { onRunClick(nnRunning, coroutineScope, nn, evalEnvironment, visualMode, nnState, loss) })
+			Column {
+				Text("TPS: ${ticksPerSec.value.toInt()}", color = Color.Yellow)
+				Text("Loss: ${"%.${2}f".format(loss.value)}", color = Color.Yellow)
+			}
 		} else {
 			Column {
 				Text("TPS: ${ticksPerSec.value.toInt()}")
-				Text("Loss: ${loss.value}")
-				Button(onClick = { onRunClick(nnRunning, coroutineScope, nn, evalEnvironment, visualMode, nnState, loss) }) {
+				Text("Loss: ${"%.${2}f".format(loss.value)}")
+				Button(onClick = {
+					onRunClick(
+						nnRunning,
+						coroutineScope,
+						nn,
+						evalEnvironment,
+						visualMode,
+						nnState,
+						loss
+					)
+				}) {
 					Text(if (nnRunning.value) "Pause NN" else "Run NN")
 				}
 				Button(onClick = { visualMode.value = true }) {

@@ -1,7 +1,8 @@
 package we.rashchenko
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -47,13 +48,15 @@ fun networkStateDrawer(activeAndPassiveNeurons: MutableState<Pair<List<Vector2>,
 	}
 }
 
+@ExperimentalFoundationApi
 @Composable
 fun networkDrawer(
 	nn: NeuralNetworkIn2DSpace,
 	networkState: MutableState<Pair<List<Vector2>, List<Vector2>>>,
-	onClick: () -> Unit
+	onClick: () -> Unit,
+	onLongClick: () -> Unit
 ) {
-	Canvas(modifier = Modifier.fillMaxSize().clickable { onClick() }) {
+	Canvas(modifier = Modifier.fillMaxSize().combinedClickable(onLongClick=onLongClick, onClick = onClick)) {
 		drawNN(nn)
 	}
 	networkStateDrawer(networkState, modifier = Modifier.fillMaxSize())
