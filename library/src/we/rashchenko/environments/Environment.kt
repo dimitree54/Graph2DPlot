@@ -1,10 +1,10 @@
 package we.rashchenko.environments
 
-import we.rashchenko.neurons.ExternallyControlledActivity
+import we.rashchenko.neurons.ExternallyControlledNeuron
 
 interface Environment {
-	val externalSignals: Collection<ExternallyControlledActivity>
+	val externalSignals: Collection<ExternallyControlledNeuron>
 	fun tick()
 	val timeStep: Long
-	fun onSignalUpdate(neuron: ExternallyControlledActivity, newValue: Boolean)
+	var onSignalUpdate: ((ExternallyControlledNeuron, Boolean) -> Unit)?
 }

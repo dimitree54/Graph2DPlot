@@ -6,4 +6,8 @@ class ExponentialMovingAverage(initialValue: Double, private val eps: Double=0.9
 	fun update(newValue: Double){
 		value = value * eps + newValue * (1 - eps)
 	}
+
+	override fun toString(): String {
+		return value.toString()
+	}
 }
