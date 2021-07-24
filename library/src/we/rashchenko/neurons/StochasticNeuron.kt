@@ -36,19 +36,8 @@ open class StochasticNeuron : Neuron {
 
 	override fun update(feedback: Feedback, timeStep: Long) {
 		activatedOnTouchFrom?.let {
-			when (feedback.value){
-				in -1.0..-0.5 -> {
-					feedbacks[it] = Feedback.VERY_NEGATIVE
-					weights[it] = weights[it]?.plus(-0.01)?.clip(0.01, 0.99) ?: initializeNewWeight()
-				}
-				in -0.5..0.5 -> {
-					feedbacks[it] = Feedback.NEUTRAL
-				}
-				in 0.5 .. 1.0 -> {
-					feedbacks[it] = Feedback.VERY_POSITIVE
-					weights[it] = weights[it]?.plus(+0.01)?.clip(0.01, 0.99) ?: initializeNewWeight()
-				}
-			}
+			feedbacks[it] = feedback
+			weights[it] = weights[it]?.plus(+0.01 * feedback.value)?.clip(0.01, 0.99) ?: initializeNewWeight()
 		}
 		if (timeStep != activatedOnTimeStep) {
 			internalActive = false
