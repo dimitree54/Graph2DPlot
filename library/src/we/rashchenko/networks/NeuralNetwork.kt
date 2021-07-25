@@ -13,11 +13,5 @@ interface NeuralNetwork{
 	fun addExternal(neuron: Neuron)
 	fun addConnection(fromNeuron: Neuron, toNeuron: Neuron)
 	fun getNeuronId(neuron: Neuron): Int?
-	fun touch(source: Neuron, receiver: Neuron)
-	fun onNeuronActivation(neuron: Neuron)
 	fun tick()
-
-	val running: Boolean
-	suspend fun run(onTick: ()->Unit)
-	fun pause()
 }

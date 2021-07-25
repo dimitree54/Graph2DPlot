@@ -1,9 +1,5 @@
 package we.rashchenko.networks
 
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import we.rashchenko.feedbacks.getFeedback
 import we.rashchenko.feedbacks.update
 import we.rashchenko.neurons.Neuron
@@ -72,7 +68,7 @@ class StochasticNeuralNetwork: NeuralNetwork {
 		timeStep++
 	}
 
-	override fun touch(source: Neuron, receiver: Neuron) {
+	private fun touch(source: Neuron, receiver: Neuron) {
 		synchronized(receiver) {
 			val sourceNeuronId = neuronIds[source]!!
 			if (receiver !in nextTickNeurons) {
@@ -83,30 +79,8 @@ class StochasticNeuralNetwork: NeuralNetwork {
 						neuronFeedbacks[source]!!.update(newUpdate)
 						nextTickNeurons.add(receiver)
 					}
-					onNeuronActivation(receiver)
 				}
 			}
 		}
-	}
-
-	override fun onNeuronActivation(neuron: Neuron) {}
-
-	override var running: Boolean = false
-		private set
-
-	@ObsoleteCoroutinesApi
-	override suspend fun run(onTick: () -> Unit) {
-		coroutineScope{
-			launch(context = newSingleThreadContext("EnvironmentThread")) {
-				while (running){
-					tick()
-					onTick()
-				}
-			}
-		}
-	}
-
-	override fun pause() {
-		running = false
 	}
 }
