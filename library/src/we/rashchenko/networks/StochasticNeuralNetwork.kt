@@ -55,7 +55,9 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 				if (source.active){
 					touch(source, receiver)
 				}
-				// @ @todo can we do not check active?
+				else{
+					throw Exception("This should never happen")
+				}
 			}
 		}
 		currentTickNeurons.parallelStream().forEach{
@@ -66,7 +68,7 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 				}
 			}
 		}
-		nextTickNeurons.addAll(externalNeurons)
+		nextTickNeurons.addAll(externalNeurons.filter { it.active })
 		timeStep++
 	}
 
