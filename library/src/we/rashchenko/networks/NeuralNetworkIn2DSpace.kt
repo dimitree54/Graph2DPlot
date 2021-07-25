@@ -4,6 +4,7 @@ import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Vector2
 
 class NeuralNetworkIn2DSpace(private val nn: NeuralNetwork): NeuralNetwork by nn {
+	private val neuronsOnCoordinate = mutableMapOf<Vector2, Neuron>()
 	private val positions = mutableMapOf<Neuron, Vector2>()
 	fun add(neuron: Neuron, position: Vector2){
 		nn.add(neuron)
@@ -15,6 +16,14 @@ class NeuralNetworkIn2DSpace(private val nn: NeuralNetwork): NeuralNetwork by nn
 	}
 	fun getPosition(neuron: Neuron): Vector2?{
 		return positions[neuron]
+	}
+	fun getAllPositions(): Collection<Vector2> = positions.values
+	fun getNeuron(position: Vector2): Neuron?{
+		return neuronsOnCoordinate[position]
+	}
+	override fun remove(neuron: Neuron) {
+		getPosition(neuron)?.let{neuronsOnCoordinate.remove(it)}
+		positions.remove(neuron)
 	}
 }
 

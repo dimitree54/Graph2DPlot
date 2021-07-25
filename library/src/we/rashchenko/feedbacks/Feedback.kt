@@ -9,7 +9,7 @@ import java.lang.IllegalArgumentException
  * feedback < 0 is negative, for neuron that does not help
  * feedback == 0 is neutral
  */
-data class Feedback(val value: Double){
+data class Feedback(val value: Double): Comparable<Feedback>{
 	init {
 		if (value !in -1.0..1.0){
 			throw IllegalArgumentException("Feedback should be in range [-1, 1]")
@@ -19,6 +19,10 @@ data class Feedback(val value: Double){
 		val VERY_POSITIVE = Feedback(1.0)
 		val VERY_NEGATIVE = Feedback(-1.0)
 		val NEUTRAL = Feedback(0.0)
+	}
+
+	override fun compareTo(other: Feedback): Int {
+		return value.compareTo(other.value)
 	}
 }
 

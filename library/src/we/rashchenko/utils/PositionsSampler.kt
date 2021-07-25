@@ -18,3 +18,7 @@ fun rectangularPositionSampler(rectangle: Vector2): Vector2 {
 
 	return Vector2(x * maxDim / rectangle.x, y * maxDim / rectangle.y)
 }
+
+interface PositionSampler{
+	fun getPosition(): Vector2
+}

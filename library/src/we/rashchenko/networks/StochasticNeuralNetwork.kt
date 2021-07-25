@@ -72,6 +72,10 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 		timeStep++
 	}
 
+	override fun getFeedback(neuron: Neuron): Feedback {
+		return neuronFeedbacks.getOrPut(neuron) { ExponentialMovingAverage(0.0) }.getFeedback()
+	}
+
 	private fun touch(source: Neuron, receiver: Neuron) {
 		synchronized(receiver) {
 			val sourceNeuronId = neuronIds[source]!!

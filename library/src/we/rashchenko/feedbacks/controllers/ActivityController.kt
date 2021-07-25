@@ -4,6 +4,7 @@ import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 import org.apache.commons.math3.stat.StatUtils
 import we.rashchenko.utils.clip
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -29,7 +30,11 @@ class ActivityController : NeuralNetworkController {
 		else{
 			cachedMean!! to cachedStd!!
 		}
-		return Feedback(((neuronActivations[neuron]?.toDouble()?: 0.0 - mean) / std).clip(-1.0, 1.0))
+		return Feedback(
+			(  // near average activity is good (~1.0), deviation in both sides bad (down to -1.0)
+					1 - 2 * abs(neuronActivations[neuron]?.toDouble()?: 0.0 - mean) / std
+					).clip(-1.0, 1.0)
+		)
 	}
 
 	private fun calcStats(): Pair<Double, Double>{

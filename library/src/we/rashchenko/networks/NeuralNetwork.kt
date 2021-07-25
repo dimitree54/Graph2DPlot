@@ -1,5 +1,6 @@
 package we.rashchenko.networks
 
+import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 
 interface NeuralNetwork{
@@ -14,4 +15,5 @@ interface NeuralNetwork{
 	fun addConnection(fromNeuron: Neuron, toNeuron: Neuron)
 	fun getNeuronId(neuron: Neuron): Int?
 	fun tick()
+	fun getFeedback(neuron: Neuron): Feedback
 }

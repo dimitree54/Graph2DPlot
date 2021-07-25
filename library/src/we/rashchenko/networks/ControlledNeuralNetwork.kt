@@ -8,7 +8,7 @@ import we.rashchenko.utils.ExponentialMovingAverage
 import java.util.*
 
 // @todo maybe better to make ControlledNeuralNetwork parent of StochasticNeuralNetwork, not vice versa?
-class ControlledNeuralNetwork(
+open class ControlledNeuralNetwork(
 	private val controller: NeuralNetworkController,
 	private val auditProbability: Double,
 	private val checkControllerFeedbackEveryNTicks: Long
