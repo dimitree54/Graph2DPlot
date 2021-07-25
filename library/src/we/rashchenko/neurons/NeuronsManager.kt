@@ -1,0 +1,65 @@
+package we.rashchenko.neurons
+
+import we.rashchenko.feedbacks.Feedback
+import we.rashchenko.feedbacks.update
+import we.rashchenko.utils.ExponentialMovingAverage
+import we.rashchenko.utils.softmax
+import java.lang.IllegalArgumentException
+import java.util.*
+
+class NeuronsManager(override val name: String) : NeuronsSampler {
+	private val neuronSamplerMap = mutableMapOf<Neuron, NeuronsSampler>()
+	private val samplersScore = mutableMapOf<NeuronsSampler, ExponentialMovingAverage>()
+	private val probabilityRanges = mutableMapOf<NeuronsSampler, ClosedFloatingPointRange<Double>>()
+	private val random = Random()
+
+	private val defaultScore: Feedback = Feedback.NEUTRAL
+	fun add(sampler: NeuronsSampler){
+		samplersScore[sampler] = ExponentialMovingAverage(defaultScore.value)
+		updateRanges()
+	}
+
+	private fun updateRanges(){
+		val keys = samplersScore.keys
+		val probabilities = softmax(samplersScore.values.map { it.value })
+
+		probabilityRanges.clear()
+		var lastMax = 0.0
+		keys.mapIndexed { index, neuronsSampler ->
+			val newMax = lastMax + probabilities[index]
+			probabilityRanges[neuronsSampler] = lastMax..newMax
+			lastMax = newMax
+		}
+	}
+
+	override fun next(): Neuron {
+		random.nextDouble().let{ randomValue ->
+			probabilityRanges.forEach{ (sampler, probabilityRange) ->
+				if (randomValue in probabilityRange){
+					return sampler.next()
+				}
+			}
+		}
+		throw Exception("probabilityRange invalid (does not cover [0, 1])")
+	}
+
+	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {
+		val sampler = neuronSamplerMap[neuron]?: throw IllegalArgumentException("Unknown neuron")
+		sampler.reportFeedback(neuron, feedback)
+		samplersScore[sampler]?.update(feedback)?: throw Exception("Invalid manager state")
+		updateRanges()
+	}
+
+	override fun reportDeath(neuron: Neuron) {
+		val sampler = neuronSamplerMap[neuron]?: throw IllegalArgumentException("Unknown neuron")
+		sampler.reportDeath(neuron)
+		neuronSamplerMap.remove(neuron)
+	}
+
+	fun getSummary(){
+		samplersScore.forEach { (sampler, score) ->
+			val probability = probabilityRanges[sampler]!!.let{ it.endInclusive - it.start}
+			println("${sampler.name} has score $score and have $probability probability to be chosen next time")
+		}
+	}
+}

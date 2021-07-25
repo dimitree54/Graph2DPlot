@@ -1,7 +1,7 @@
 package we.rashchenko.environments
 
 import we.rashchenko.neurons.ExternallyControlledNeuron
-import we.rashchenko.neurons.StochasticNeuron
+import we.rashchenko.neurons.zoo.StochasticNeuron
 import java.util.*
 
 class SimpleEnvironment(private val tickPeriod: Int) : Environment {

@@ -19,7 +19,7 @@ import we.rashchenko.networks.NeuralNetworkIn2DSpace
 import we.rashchenko.networks.StochasticNeuralNetwork
 import we.rashchenko.networks.getActiveAndPassiveCoordinates
 import we.rashchenko.neurons.Neuron
-import we.rashchenko.neurons.StochasticNeuron
+import we.rashchenko.neurons.zoo.StochasticNeuron
 import we.rashchenko.utils.Vector2
 import we.rashchenko.utils.hemmingDistance
 import we.rashchenko.utils.kNearest
