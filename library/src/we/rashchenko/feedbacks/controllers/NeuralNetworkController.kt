@@ -17,5 +17,6 @@ interface NeuralNetworkController {
 	fun controlledTouch(neuron: Neuron, sourceNeuronId: Int, timeStep: Long, fn: () -> Unit) = fn()
 	fun controlledGetFeedback(neuron: Neuron, sourceNeuronId: Int, fn: () -> Feedback): Feedback = fn()
 	// @todo probably all public functions of neuron should be controlled (so it is not possible to call heavy computations there)
+	// @todo controller functions will be called from multithreading, consider it
 }
 

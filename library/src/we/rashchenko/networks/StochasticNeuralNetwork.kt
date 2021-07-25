@@ -15,7 +15,7 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 
 	private val neuronIds = mutableMapOf<Neuron, Int>()
 	private val backwardConnections = mutableMapOf<Neuron, MutableList<Neuron>>()
-	private val neuronFeedbacks = mutableMapOf<Neuron, ExponentialMovingAverage>()
+	protected val neuronFeedbacks = mutableMapOf<Neuron, ExponentialMovingAverage>()
 
 	override val neurons: Collection<Neuron> = neuronIds.keys
 	override fun getNeuronId(neuron: Neuron): Int? = neuronIds[neuron]
