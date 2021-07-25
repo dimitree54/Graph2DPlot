@@ -11,13 +11,13 @@ class EvaluationEnvironment(
 	private val neuronsToTest: Set<ExternallyControlledNeuron>,
 	private val lossFn: (List<Boolean>, List<Boolean>) -> Double
 ) :
-	Environment by baseEnvironment, Evaluable {
+	Environment by baseEnvironment {
 	init {
 		baseEnvironment.onSignalUpdate = this::onSignalUpdate
 	}
 	private val random = Random()
 	private val lossAggregator = ExponentialMovingAverage(0.0)
-	override val loss: Double
+	val loss: Double
 		get() = lossAggregator.value
 
 	private var testMode: Boolean = false

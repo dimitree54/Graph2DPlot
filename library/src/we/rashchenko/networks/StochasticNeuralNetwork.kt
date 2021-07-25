@@ -1,15 +1,16 @@
 package we.rashchenko.networks
 
+import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.feedbacks.getFeedback
 import we.rashchenko.feedbacks.update
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.randomIds
 
-class StochasticNeuralNetwork: NeuralNetwork {
+open class StochasticNeuralNetwork: NeuralNetwork {
 	override val externalNeurons = mutableSetOf<Neuron>()
 	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
-	override var timeStep: Long = 0
+	final override var timeStep: Long = 0
 		private set
 
 	private val neuronIds = mutableMapOf<Neuron, Int>()
@@ -54,10 +55,11 @@ class StochasticNeuralNetwork: NeuralNetwork {
 				if (source.active){
 					touch(source, receiver)
 				}
+				// @ @todo can we do not check active?
 			}
 		}
 		currentTickNeurons.parallelStream().forEach{
-			it.update(neuronFeedbacks[it]!!.getFeedback(), timeStep)
+			update(it, neuronFeedbacks[it]!!.getFeedback(), timeStep)
 			if (it.active) {
 				synchronized(setAddingLock){
 					nextTickNeurons.add(it)
@@ -72,9 +74,9 @@ class StochasticNeuralNetwork: NeuralNetwork {
 		synchronized(receiver) {
 			val sourceNeuronId = neuronIds[source]!!
 			if (receiver !in nextTickNeurons) {
-				receiver.touch(sourceNeuronId, timeStep)
+				touch(receiver, sourceNeuronId, timeStep)
 				if (receiver.active) {
-					val newUpdate = receiver.getFeedback(sourceNeuronId)
+					val newUpdate = getFeedback(receiver, sourceNeuronId)
 					synchronized(setAddingLock) {
 						neuronFeedbacks[source]!!.update(newUpdate)
 						nextTickNeurons.add(receiver)
@@ -82,5 +84,16 @@ class StochasticNeuralNetwork: NeuralNetwork {
 				}
 			}
 		}
+	}
+
+	// neuron based functions moved to protected wrapper fot easy customization in subclasses
+	protected open fun update(neuron: Neuron, feedback: Feedback, timeStep: Long){
+		neuron.update(feedback, timeStep)
+	}
+	protected open fun touch(neuron: Neuron, sourceNeuronId: Int, timeStep: Long){
+		neuron.touch(sourceNeuronId, timeStep)
+	}
+	protected open fun getFeedback(neuron: Neuron, sourceNeuronId: Int): Feedback{
+		return neuron.getFeedback(sourceNeuronId)
 	}
 }
