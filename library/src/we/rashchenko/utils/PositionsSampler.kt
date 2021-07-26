@@ -20,5 +20,5 @@ fun rectangularPositionSampler(rectangle: Vector2): Vector2 {
 }
 
 interface PositionSampler{
-	fun getPosition(): Vector2
+	fun next(): Vector2
 }
