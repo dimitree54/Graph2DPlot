@@ -11,19 +11,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.*
-import we.rashchenko.environments.Environment
 import we.rashchenko.environments.EvaluationEnvironment
 import we.rashchenko.environments.SimpleEnvironment
-import we.rashchenko.networks.NeuralNetworkIn2DBuilder
-import we.rashchenko.networks.NeuralNetworkIn2DSpace
-import we.rashchenko.networks.StochasticNeuralNetwork
-import we.rashchenko.networks.getActiveAndPassiveCoordinates
-import we.rashchenko.neurons.Neuron
-import we.rashchenko.neurons.zoo.StochasticNeuron
-import we.rashchenko.utils.Vector2
-import we.rashchenko.utils.hemmingDistance
-import we.rashchenko.utils.kNearest
-import we.rashchenko.utils.rectangularPositionSampler
+import we.rashchenko.networks.*
+import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
+import we.rashchenko.networks.controllers.ActivityController
+import we.rashchenko.networks.controllers.ComplexController
+import we.rashchenko.networks.controllers.TimeController
+import we.rashchenko.neurons.NeuronsManager
+import we.rashchenko.neurons.zoo.*
+import we.rashchenko.utils.*
 
 val externalColor = Color.Blue
 val colorActive = Color.Green
@@ -32,7 +29,7 @@ val backColor = Color.Black
 val connectionColor = Color.Gray
 
 
-val targetScreenSize = Vector2(2560f, 1600f)
+private val targetScreenSize = Vector2(2560f, 1600f)
 
 
 @ExperimentalFoundationApi
@@ -40,24 +37,27 @@ val targetScreenSize = Vector2(2560f, 1600f)
 fun main() {
 	val evalEnvironment = SimpleEnvironment(100).let {
 		EvaluationEnvironment(
-			0.01, 20,
+			0.001, 300,
 			it, setOf(it.externalSignals.last()), lossFn = ::hemmingDistance
 		)
 	}
-	val nn = NeuralNetworkIn2DSpace(StochasticNeuralNetwork())
-	object : NeuralNetworkIn2DBuilder(nn) {
-		override fun neuronsWithPositionSampler(): Pair<Neuron, Vector2> =
-			StochasticNeuron() to rectangularPositionSampler(targetScreenSize)
-
-		override fun environmentInputsPositionSampler(environment: Environment): Collection<Vector2> =
-			environment.externalSignals.map { rectangularPositionSampler(targetScreenSize) }
-
-		override fun connectionsSampler(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>> =
-			kNearest(5, allPositions)
-	}.apply {
-		addNeurons(1000)
-		addEnvironment(evalEnvironment)
-		addConnections()
+	val nn = run {
+		val neuronsManager = NeuronsManager().apply {
+			add(StochasticNeuronSampler())
+			add(HebbianNeuronSampler())
+			add(HebbianAngryNeuronSampler())
+			add(HebbianHappyNeuronSampler())
+		}
+		val nnController = ComplexController(
+			TimeController(), ActivityController()
+		)
+		val controlledNN2D = NeuralNetworkIn2DSpace(ControlledNeuralNetwork(nnController, 0.01, 1000))
+		val positionSampler = RectangularRandomSampler(targetScreenSize)
+		val connectionsSampler = KNearestConnectionSampler(5)
+		val nnBuilder = NeuralNetworkIn2DBuilder(
+			controlledNN2D, neuronsManager, positionSampler, positionSampler, connectionsSampler
+		).apply { initialise(1000, evalEnvironment) }
+		EvolvingNeuralNetwork(controlledNN2D, nnBuilder)
 	}
 
 	Window {
