@@ -1,6 +1,5 @@
-package we.rashchenko.feedbacks
+package we.rashchenko.utils
 
-import we.rashchenko.utils.ExponentialMovingAverage
 import java.lang.IllegalArgumentException
 
 /**
