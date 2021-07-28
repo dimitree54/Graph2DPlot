@@ -1,7 +1,7 @@
-package we.rashchenko.feedbacks.controllers
+package we.rashchenko.networks.controllers
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
+import we.rashchenko.utils.Feedback
 
 class ComplexController(private vararg val controllers: NeuralNetworkController) : NeuralNetworkController {
 	override fun reset() {

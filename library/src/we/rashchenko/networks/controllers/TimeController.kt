@@ -1,11 +1,11 @@
-package we.rashchenko.feedbacks.controllers
+package we.rashchenko.networks.controllers
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.clip
 import kotlin.system.measureTimeMillis
 import org.apache.commons.math3.stat.StatUtils
+import we.rashchenko.utils.Feedback
 import kotlin.math.sqrt
 
 class TimeController : NeuralNetworkController {

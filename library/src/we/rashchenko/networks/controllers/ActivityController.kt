@@ -1,8 +1,8 @@
-package we.rashchenko.feedbacks.controllers
+package we.rashchenko.networks.controllers
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 import org.apache.commons.math3.stat.StatUtils
+import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.clip
 import kotlin.math.abs
 import kotlin.math.max

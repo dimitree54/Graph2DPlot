@@ -1,7 +1,7 @@
-package we.rashchenko.feedbacks.controllers
+package we.rashchenko.networks.controllers
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
+import we.rashchenko.utils.Feedback
 
 interface NeuralNetworkController {
 	fun getControllerFeedback(neuron: Neuron): Feedback = Feedback.NEUTRAL

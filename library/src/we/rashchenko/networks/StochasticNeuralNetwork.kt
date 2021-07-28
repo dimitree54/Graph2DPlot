@@ -1,11 +1,7 @@
 package we.rashchenko.networks
 
-import we.rashchenko.feedbacks.Feedback
-import we.rashchenko.feedbacks.getFeedback
-import we.rashchenko.feedbacks.update
 import we.rashchenko.neurons.Neuron
-import we.rashchenko.utils.ExponentialMovingAverage
-import we.rashchenko.utils.randomIds
+import we.rashchenko.utils.*
 
 open class StochasticNeuralNetwork: NeuralNetwork {
 	override val externalNeurons = mutableSetOf<Neuron>()

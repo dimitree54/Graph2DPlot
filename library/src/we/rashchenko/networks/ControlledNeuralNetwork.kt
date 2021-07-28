@@ -1,10 +1,10 @@
 package we.rashchenko.networks
 
-import we.rashchenko.feedbacks.Feedback
-import we.rashchenko.feedbacks.controllers.NeuralNetworkController
-import we.rashchenko.feedbacks.update
+import we.rashchenko.networks.controllers.NeuralNetworkController
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.ExponentialMovingAverage
+import we.rashchenko.utils.Feedback
+import we.rashchenko.utils.update
 import java.util.*
 
 // @todo maybe better to make ControlledNeuralNetwork parent of StochasticNeuralNetwork, not vice versa?
