@@ -1,13 +1,13 @@
 package we.rashchenko.neurons
 
-import we.rashchenko.feedbacks.Feedback
-import we.rashchenko.feedbacks.update
 import we.rashchenko.utils.ExponentialMovingAverage
+import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.softmax
+import we.rashchenko.utils.update
 import java.lang.IllegalArgumentException
 import java.util.*
 
-class NeuronsManager(override val name: String) : NeuronsSampler {
+class NeuronsManager(override val name: String = "manager") : NeuronsSampler {
 	private val neuronSamplerMap = mutableMapOf<Neuron, NeuronsSampler>()
 	private val samplersScore = mutableMapOf<NeuronsSampler, ExponentialMovingAverage>()
 	private val probabilityRanges = mutableMapOf<NeuronsSampler, ClosedFloatingPointRange<Double>>()
@@ -40,7 +40,7 @@ class NeuronsManager(override val name: String) : NeuronsSampler {
 				}
 			}
 		}
-		throw Exception("probabilityRange invalid (does not cover [0, 1])")
+		throw Exception("no neuron samplers added to manager")
 	}
 
 	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {

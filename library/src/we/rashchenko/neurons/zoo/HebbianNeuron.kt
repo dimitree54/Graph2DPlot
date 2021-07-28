@@ -1,9 +1,8 @@
 package we.rashchenko.neurons.zoo
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
-import we.rashchenko.utils.clip
+import we.rashchenko.utils.Feedback
 import java.util.Random
 
 open class HebbianNeuron : Neuron {

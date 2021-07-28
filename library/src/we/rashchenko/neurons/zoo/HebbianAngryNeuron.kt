@@ -1,10 +1,8 @@
 package we.rashchenko.neurons.zoo
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
-import we.rashchenko.utils.clip
-import java.util.Random
+import we.rashchenko.utils.Feedback
 
 open class HebbianAngryNeuron : HebbianNeuron() {
 	override fun getFeedback(sourceId: Int): Feedback = Feedback.VERY_NEGATIVE
