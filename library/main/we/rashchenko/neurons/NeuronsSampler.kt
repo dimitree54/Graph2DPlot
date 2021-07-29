@@ -1,6 +1,7 @@
 package we.rashchenko.neurons
 
-import we.rashchenko.feedbacks.Feedback
+import we.rashchenko.utils.Feedback
+
 
 // @todo maybe make it sequence?
 interface NeuronsSampler {

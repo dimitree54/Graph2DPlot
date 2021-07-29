@@ -1,7 +1,7 @@
 package we.rashchenko.networks
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.neurons.Neuron
+import we.rashchenko.utils.Feedback
 
 interface NeuralNetwork{
 	val neurons: Collection<Neuron>

@@ -1,6 +1,7 @@
 package we.rashchenko.neurons
 
-import we.rashchenko.feedbacks.Feedback
+import we.rashchenko.utils.Feedback
+
 
 class ExternallyControlledNeuron(private val baseNeuron: Neuron) : Neuron by baseNeuron, ExternallyControlledActivity {
 	override fun update(feedback: Feedback, timeStep: Long) {

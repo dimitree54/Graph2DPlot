@@ -1,17 +1,15 @@
 package we.rashchenko.networks.builders
 
-import we.rashchenko.feedbacks.Feedback
 import we.rashchenko.networks.NeuralNetwork
-import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
-import we.rashchenko.utils.BestN
+import we.rashchenko.utils.BestNNeurons
 
 abstract class NeuralNetworkEvolutionBuilder(
 	val nn: NeuralNetwork,
 	val neuronsSampler: NeuronsSampler
 ) : NeuralNetworkBuilder {
 	fun evolutionStep(neuronsForSelection: Int) {
-		val losers = BestN<Pair<Neuron, Feedback>>(neuronsForSelection) { o1, o2 -> -o1.second.compareTo(o2.second) }
+		val losers = BestNNeurons(neuronsForSelection)
 		nn.neurons.forEach {
 			val neuronFeedback = nn.getFeedback(it)
 			neuronsSampler.reportFeedback(it, neuronFeedback)

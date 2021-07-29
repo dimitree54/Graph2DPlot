@@ -1,6 +1,7 @@
 package we.rashchenko.neurons
 
-import we.rashchenko.feedbacks.Feedback
+import we.rashchenko.utils.Feedback
+
 
 interface Neuron{
 	val active: Boolean
