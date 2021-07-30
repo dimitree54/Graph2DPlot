@@ -6,20 +6,23 @@ import kotlin.Comparator
 
 /**
 Always sorted set (like TreeSet) but with limited capacity. If there is no
- vacant space left and you are trying to add more it removes the least element.
+ vacant space left, and you are trying to add more it removes the least element.
 
 Note that this is set, so it can not store the same element. And the same element is defined be
  comparator(o1,o2)==0. So be careful using BestN for complex objects, but defining comparator based on
  just one field of it.
 
 For example
- val data = BestN<Pair<String, Int>>(5){ o1,o2 -> o1.second.compareTo(o2.second) }
- data.apply{ add("Apple" to 1); add("Orange" to 1)}
- data.size == 1 // one of the elements was not added because comparator think that they are identical
+ `val data = BestN<Pair<String, Int>>(5){ o1,o2 -> o1.second.compareTo(o2.second) }`
+ `data.apply{ add("Apple" to 1); add("Orange" to 1)}`
+ `data.size == 1 // one of the elements was not added because comparator think that they are identical`
  */
 open class BestN<T>(private val n: Int, comparator: Comparator<T>): TreeSet<T>(comparator) {
 	override fun add(element: T): Boolean {
-		return if (size > n){
+		if (contains(element)){
+			return false
+		}
+		return if (size + 1 > n){
 			if (comparator().compare(this.first(), element) < 0){
 				pollFirst()
 				super.add(element)
@@ -41,20 +44,28 @@ class NeuronsWithFeedbackComparator: Comparator<Pair<Neuron, Feedback>>{
 		return if (o1 == null && o2 == null){
 			0
 		} else if (o1 == null){
-			-1  // @todo are you sure that -1 means that o1 < o2? Test it.
+			-1
 		} else if (o2 == null){
 			1
 		} else{
-			o1.second.compareTo(o2.second).let{
+			o1.second.value.compareTo(o2.second.value).let{
 				if (it == 0){
-					// @todo hashes rarely, but intersect, is there something that for sure different?
 					// we need that case to no delete different elements with the same feedback
 					o1.first.hashCode().compareTo(o2.first.hashCode())
 				}
-				it
+				else{
+					it
+				}
 			}
 		}
 	}
 }
 
-class BestNNeurons(n: Int): BestN<Pair<Neuron, Feedback>>(n, NeuronsWithFeedbackComparator())
+class InvertedNeuronsWithFeedbackComparator: Comparator<Pair<Neuron, Feedback>>{
+	private val baseComparator = NeuronsWithFeedbackComparator()
+	override fun compare(o1: Pair<Neuron, Feedback>?, o2: Pair<Neuron, Feedback>?): Int {
+		return -baseComparator.compare(o1, o2)
+	}
+}
+
+class WorstNNeurons(n: Int): BestN<Pair<Neuron, Feedback>>(n, InvertedNeuronsWithFeedbackComparator())
