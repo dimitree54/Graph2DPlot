@@ -17,3 +17,6 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(compose.desktop.currentOs)
 }
+
+task("prepareKotlinBuildScriptModel"){
+}
