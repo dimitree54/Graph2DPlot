@@ -12,4 +12,4 @@ val randomIds = sequence {
 			yield(randomId)
 		}
 	}
-}
+}.iterator()

@@ -17,7 +17,7 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 	override fun getNeuronId(neuron: Neuron): Int? = neuronIds[neuron]
 
 	override fun add(neuron: Neuron){
-		neuronIds[neuron] = randomIds.first()
+		neuronIds[neuron] = randomIds.next()
 		connections[neuron] = mutableListOf()
 		backwardConnections[neuron] = mutableListOf()
 		neuronFeedbacks[neuron] = ExponentialMovingAverage(0.0)
