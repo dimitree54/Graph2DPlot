@@ -4,8 +4,8 @@ import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.softmax
 import we.rashchenko.utils.update
-import java.lang.IllegalArgumentException
 import java.util.*
+import kotlin.IllegalArgumentException
 
 class NeuronsManager(override val name: String = "manager") : NeuronsSampler {
 	private val neuronSamplerMap = mutableMapOf<Neuron, NeuronsSampler>()
@@ -15,6 +15,9 @@ class NeuronsManager(override val name: String = "manager") : NeuronsSampler {
 
 	private val defaultScore: Feedback = Feedback.NEUTRAL
 	fun add(sampler: NeuronsSampler){
+		if (samplersScore.keys.any { it.name == sampler.name }){
+			throw IllegalArgumentException("Sampler with that name already registered at NeuronsManager")
+		}
 		samplersScore[sampler] = ExponentialMovingAverage(defaultScore.value)
 		updateRanges()
 	}
