@@ -7,7 +7,8 @@ import we.rashchenko.utils.update
 import java.util.*
 import kotlin.IllegalArgumentException
 
-class NeuronsManager(override val name: String = "manager") : NeuronsSampler {
+class NeuronsManager : NeuronsSampler {
+	override val name: String = "manager"
 	private val neuronSamplerMap = mutableMapOf<Neuron, NeuronsSampler>()
 	private val samplersScore = mutableMapOf<NeuronsSampler, ExponentialMovingAverage>()
 	private val probabilityRanges = mutableMapOf<NeuronsSampler, ClosedFloatingPointRange<Double>>()
@@ -39,7 +40,7 @@ class NeuronsManager(override val name: String = "manager") : NeuronsSampler {
 		random.nextDouble().let{ randomValue ->
 			probabilityRanges.forEach{ (sampler, probabilityRange) ->
 				if (randomValue in probabilityRange){
-					return sampler.next()
+					return sampler.next().also { neuronSamplerMap[it] = sampler }
 				}
 			}
 		}
