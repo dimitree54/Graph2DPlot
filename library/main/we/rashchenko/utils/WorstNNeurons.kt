@@ -4,24 +4,55 @@ import we.rashchenko.neurons.Neuron
 import java.util.*
 import kotlin.Comparator
 
-/**
-Always sorted set (like TreeSet) but with limited capacity. If there is no
- vacant space left, and you are trying to add more it removes the least element.
 
-Note that this is set, so it can not store the same element. And the same element is defined be
- comparator(o1,o2)==0. So be careful using BestN for complex objects, but defining comparator based on
- just one field of it.
+// @todo probably binary tree would be more efficient data structure for AlwaysSorted (as it does not require
+//   shift a bunch of data on each add). But implementation would be much more massive.
+open class AlwaysSorted<T>(private val comparator: Comparator<T>): MutableCollection<T>{
+	// @todo why we can not delegate interface implementation to val outside of primary constructor? Track status of
+	//   that question here:
+	//   https://stackoverflow.com/questions/33966186/how-to-delegate-implementation-to-a-property-in-kotlin
+	private val data = mutableListOf<T>()
+	override val size: Int
+		get() = data.size
+	override fun isEmpty(): Boolean = data.isEmpty()
+	override fun iterator(): MutableIterator<T> = data.iterator()
+	override fun clear() = data.clear()
+	override fun retainAll(elements: Collection<T>): Boolean = data.retainAll(elements)
 
-For example
- `val data = BestN<Pair<String, Int>>(5){ o1,o2 -> o1.second.compareTo(o2.second) }`
- `data.apply{ add("Apple" to 1); add("Orange" to 1)}`
- `data.size == 1 // one of the elements was not added because comparator think that they are identical`
- */
-open class BestN<T>(private val n: Int, comparator: Comparator<T>): TreeSet<T>(comparator) {
+	override fun contains(element: T): Boolean {
+		val index = Collections.binarySearch(data, element, comparator)
+		return index >= 0
+	}
+	override fun containsAll(elements: Collection<T>): Boolean = elements.map{contains(it)}.all{ it }
+
+	override fun remove(element: T): Boolean {
+		val index = Collections.binarySearch(data, element, comparator)
+		data.removeAt(index)
+		return index >= 0
+	}
+	override fun removeAll(elements: Collection<T>): Boolean = elements.map{remove(it)}.any()
+
 	override fun add(element: T): Boolean {
-		if (contains(element)){
-			return false
-		}
+		var index = Collections.binarySearch(data, element, comparator)
+		if (index < 0) index = index.inv()
+		data.add(index, element)
+		return true
+	}
+	override fun addAll(elements: Collection<T>): Boolean = elements.map{add(it)}.any()
+
+	// using the same syntax as in TreeSet:
+	fun comparator(): Comparator<T> = comparator
+	fun pollFirst(){
+		data.removeAt(0)
+	}
+}
+
+/**
+AlwaysSorted Collection with limited capacity. If there is no
+ vacant space left, and you are trying to add more it removes the least element.
+ */
+open class BestN<T>(private val n: Int, comparator: Comparator<T>): AlwaysSorted<T>(comparator) {
+	override fun add(element: T): Boolean {
 		return if (size + 1 > n){
 			if (comparator().compare(this.first(), element) < 0){
 				pollFirst()
@@ -35,35 +66,14 @@ open class BestN<T>(private val n: Int, comparator: Comparator<T>): TreeSet<T>(c
 	}
 }
 
-// @todo probably BestN based on set is not exactly what we want for ChNN purposes. To use it we need to define
-//   quite complex Comparator that does not let removing different elements with the same score. Probably the best
-//   data structure here is SortedList (ideally based on BinaryTree inside), but it is not implemented as stdlib.
-
 class NeuronsWithFeedbackComparator: Comparator<Pair<Neuron, Feedback>>{
-	override fun compare(o1: Pair<Neuron, Feedback>?, o2: Pair<Neuron, Feedback>?): Int {
-		return if (o1 == null && o2 == null){
-			0
-		} else if (o1 == null){
-			-1
-		} else if (o2 == null){
-			1
-		} else{
-			o1.second.value.compareTo(o2.second.value).let{
-				if (it == 0){
-					// we need that case to no delete different elements with the same feedback
-					o1.first.hashCode().compareTo(o2.first.hashCode())
-				}
-				else{
-					it
-				}
-			}
-		}
-	}
+	override fun compare(o1: Pair<Neuron, Feedback>, o2: Pair<Neuron, Feedback>): Int =
+		o1.second.compareTo(o2.second)
 }
 
 class InvertedNeuronsWithFeedbackComparator: Comparator<Pair<Neuron, Feedback>>{
 	private val baseComparator = NeuronsWithFeedbackComparator()
-	override fun compare(o1: Pair<Neuron, Feedback>?, o2: Pair<Neuron, Feedback>?): Int {
+	override fun compare(o1: Pair<Neuron, Feedback>, o2: Pair<Neuron, Feedback>): Int {
 		return -baseComparator.compare(o1, o2)
 	}
 }

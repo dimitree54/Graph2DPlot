@@ -18,5 +18,10 @@ internal class ExponentialMovingAverageTest {
 			it.update(-0.0)
 			assertEquals(it.value, -2.0, eps)
 		}
+		ExponentialMovingAverage(0.0).let {
+			assertEquals(it.value, 0.0, eps)
+			it.update(100.0)
+			assertEquals(it.value, 1.0, eps)
+		}
 	}
 }

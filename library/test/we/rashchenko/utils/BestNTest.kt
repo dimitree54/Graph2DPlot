@@ -7,13 +7,23 @@ import org.junit.jupiter.api.Assertions.*
 internal class BestNTest {
 
 	@Test
-	fun testForSetProperties() {
+	fun testForDuplicatesSimpleData() {
+		val bestN = BestN<Int>(5) { o1, o2 -> o1.compareTo(o2) }
+		assertEquals(bestN.size, 0)
+		bestN.add(5)
+		assertEquals(bestN.size, 1)
+		bestN.add(5)
+		assertEquals(bestN.size, 2)
+	}
+
+	@Test
+	fun testForDuplicatesComplexData() {
 		val bestN = BestN<Pair<Int, Int>>(5) { o1, o2 -> o1.second.compareTo(o2.second) }
 		assertEquals(bestN.size, 0)
 		bestN.add(Pair(1, 5))
 		assertEquals(bestN.size, 1)
 		bestN.add(Pair(2, 5))
-		assertEquals(bestN.size, 1)
+		assertEquals(bestN.size, 2)
 	}
 
 	@Test
