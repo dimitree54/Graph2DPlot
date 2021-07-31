@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 internal class Vector2Test {
-	val eps = 0.00001f
+	private val eps = 0.00001f
 
 	@Test
 	fun assertEqual() {
