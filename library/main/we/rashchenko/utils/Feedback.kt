@@ -4,8 +4,8 @@ import java.lang.IllegalArgumentException
 
 /**
  * Wrapper for double feedback to make sure it meets limitations.
- * feedback > 0 is positive, for high-quality neurons
- * feedback < 0 is negative, for neuron that does not help
+ * feedback > 0 is positive, for high-quality neurons;
+ * feedback < 0 is negative, for neurons that does not help;
  * feedback == 0 is neutral
  */
 data class Feedback(val value: Double): Comparable<Feedback>{
