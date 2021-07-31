@@ -3,8 +3,10 @@ package we.rashchenko.neurons
 import org.junit.jupiter.api.Test
 import org.openjdk.jol.info.GraphLayout
 import we.rashchenko.utils.Feedback
+import we.rashchenko.utils.randomIds
 import java.util.*
 import kotlin.system.measureTimeMillis
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 
@@ -49,13 +51,14 @@ internal abstract class NeuronSamplerTest {
 		assertTrue(sizeAfter < memoryLimitBytesForSampler)
 
 		testMemoryUsageAndRuntimeOfTheNeuron(neuronToTest)
+		testExternalControlling(neuronToTest)
 	}
 
 	private fun testMemoryUsageAndRuntimeOfTheNeuron(neuron: Neuron) {
 		val r = Random()
 		// imitating work
 		val fakeNeighboursIds = mutableListOf<Int>().also {
-				neighbours -> repeat(numNeighboursForNeuron){ neighbours.add(r.nextInt()) } }
+				neighbours -> repeat(numNeighboursForNeuron){ neighbours.add(randomIds.next()) } }
 		measureTimeMillis {
 			var timeStep = 0L
 			repeat(numNeuronTicks){
@@ -79,9 +82,61 @@ internal abstract class NeuronSamplerTest {
 				timeStep += r.nextInt(100)
 				neuron.active
 			}
+			fakeNeighboursIds.forEach{ neuron.forgetSource(it) }
 		}.also { assertTrue(it < timeLimitMillisForNeuron) }
 
 		val sizeAfter = GraphLayout.parseInstance(neuron).totalSize()
 		assertTrue(sizeAfter < memoryLimitBytesForNeuron)
+	}
+
+	private fun testExternalControlling(neuron: Neuron) {
+		val r = Random()
+		// imitating work
+		val fakeNeighboursIds = mutableListOf<Int>().also {
+				neighbours -> repeat(numNeighboursForNeuron){ neighbours.add(randomIds.next()) } }
+
+		val externallyControlledNeuron = ExternallyControlledNeuron(neuron)
+		var timeStep = 0L
+		repeat(numNeuronTicks){
+			if(r.nextDouble() < 0.1){
+				externallyControlledNeuron.externallyControlled = !externallyControlledNeuron.externallyControlled
+			}
+			if(r.nextDouble() < 0.1){
+				val newValue = r.nextBoolean()
+				externallyControlledNeuron.active = newValue
+				if (externallyControlledNeuron.externallyControlled) {
+					assertEquals(externallyControlledNeuron.active, newValue)
+					if (newValue){
+						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
+						assertEquals(externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]), Feedback.VERY_POSITIVE)
+					}
+					else{
+						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
+						assertEquals(externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]), Feedback.VERY_NEGATIVE)
+					}
+				}
+				else{
+					assertEquals(externallyControlledNeuron.active, neuron.active)
+				}
+			}
+			if(r.nextDouble() < 0.1){
+				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+			}
+			if(r.nextDouble() < 0.1){
+				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+			}
+			if(r.nextDouble() < 0.1){
+				externallyControlledNeuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
+			}
+			if(r.nextDouble() < 0.1){
+				externallyControlledNeuron.getFeedback(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)])
+			}
+			if(r.nextDouble() < 0.1){
+				val i = r.nextInt(fakeNeighboursIds.size)
+				externallyControlledNeuron.forgetSource(fakeNeighboursIds[i])
+				fakeNeighboursIds[i] = r.nextInt()
+			}
+			timeStep += r.nextInt(100)
+		}
 	}
 }
