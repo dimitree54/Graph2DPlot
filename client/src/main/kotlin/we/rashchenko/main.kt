@@ -29,9 +29,6 @@ val backColor = Color.Black
 val connectionColor = Color.Gray
 
 
-private val targetScreenSize = Vector2(2560f, 1600f)
-
-
 @ExperimentalFoundationApi
 @ObsoleteCoroutinesApi
 fun main() {
@@ -52,7 +49,7 @@ fun main() {
 			TimeController(), ActivityController()
 		)
 		val controlledNN2D = NeuralNetworkIn2DSpace(ControlledNeuralNetwork(nnController, 0.01, 1000))
-		val positionSampler = RectangularRandomSampler(targetScreenSize)
+		val positionSampler = RandomPositionSampler()
 		val connectionsSampler = KNearestConnectionSampler(5)
 		val nnBuilder = NeuralNetworkIn2DBuilder(
 			controlledNN2D, neuronsManager, positionSampler, positionSampler, connectionsSampler

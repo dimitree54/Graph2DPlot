@@ -5,13 +5,13 @@ import we.rashchenko.networks.NeuralNetworkIn2DSpace
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
 import we.rashchenko.utils.ConnectionSampler
-import we.rashchenko.utils.PositionSampler
+import we.rashchenko.utils.Vector2
 
 
 abstract class NeuralNetworkIn2DBuilder(
 	private val nn2d: NeuralNetworkIn2DSpace, neuronsSampler: NeuronsSampler,
-	private val positionSampler: PositionSampler,
-	private val externalPositionSampler: PositionSampler,
+	private val positionSampler: Iterator<Vector2>,
+	private val externalPositionSampler: Iterator<Vector2>,
 	private val connectionsSampler: ConnectionSampler
 ) : NeuralNetworkEvolutionBuilder(nn2d, neuronsSampler) {
 	private fun addNeuronsWithoutConnection(numberOfNeurons: Int) {
