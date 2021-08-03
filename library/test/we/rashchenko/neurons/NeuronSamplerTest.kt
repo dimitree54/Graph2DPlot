@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 
 
 internal abstract class NeuronSamplerTest {
-	private val timeLimitMillisForSampler = 10000
+	private val timeLimitMillisForSampler = 100000L
 	private val memoryLimitBytesForSampler = 100 * 1024 * 1024  // 10 Mb max for empty sampler after work
 	private val numNeurons = 100000
 	private val numSamplerTicks = 1000000
