@@ -11,12 +11,12 @@ import kotlin.test.assertTrue
 
 
 internal abstract class NeuronSamplerTest {
-	private val timeLimitMillisForSampler = 100000L
+	private val timeLimitMillisForSampler = 20000L
 	private val memoryLimitBytesForSampler = 100 * 1024 * 1024  // 10 Mb max for empty sampler after work
 	private val numNeurons = 100000
 	private val numSamplerTicks = 1000000
 
-	private val timeLimitMillisForNeuron = 1000
+	private val timeLimitMillisForNeuron = 2000L
 	private val memoryLimitBytesForNeuron = 1024 * 1024  // 1 Mb max per Neuron
 	private val numNeuronTicks = 1000000
 	private val numNeighboursForNeuron = 100
@@ -47,11 +47,11 @@ internal abstract class NeuronSamplerTest {
 			neurons.forEach { sampler.reportDeath(it) }
 		}.also { assertTrue(it < timeLimitMillisForSampler) }
 
-		//val sizeAfter = GraphLayout.parseInstance(sampler).totalSize()
-		//assertTrue(sizeAfter < memoryLimitBytesForSampler)
+		val sizeAfter = GraphLayout.parseInstance(sampler).totalSize()
+		assertTrue(sizeAfter < memoryLimitBytesForSampler)
 
-		//testMemoryUsageAndRuntimeOfTheNeuron(neuronToTest)
-		//testExternalControlling(neuronToTest)
+		testMemoryUsageAndRuntimeOfTheNeuron(neuronToTest)
+		testExternalControlling(neuronToTest)
 	}
 
 	private fun testMemoryUsageAndRuntimeOfTheNeuron(neuron: Neuron) {
