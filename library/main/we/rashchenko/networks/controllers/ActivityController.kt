@@ -1,7 +1,7 @@
 package we.rashchenko.networks.controllers
 
-import we.rashchenko.neurons.Neuron
 import org.apache.commons.math3.stat.StatUtils
+import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.clip
 import kotlin.math.abs
@@ -24,21 +24,20 @@ class ActivityController : NeuralNetworkController {
 	private var cachedMean: Double? = null
 	private var cachedStd: Double? = null
 	override fun getControllerFeedback(neuron: Neuron): Feedback {
-		val (mean, std) = if (cachedMean == null || cachedStd == null){
+		val (mean, std) = if (cachedMean == null || cachedStd == null) {
 			calcStats().also { cachedMean = it.first; cachedStd = it.second }
-		}
-		else{
+		} else {
 			cachedMean!! to cachedStd!!
 		}
 		return Feedback(
 			(  // near average activity is good (~1.0), deviation in both sides bad (down to -1.0)
-					1 - 2 * abs(neuronActivations[neuron]?.toDouble()?: 0.0 - mean) / std
+					1 - 2 * abs((neuronActivations[neuron]?.toDouble() ?: 0.0) - mean) / std
 					).clip(-1.0, 1.0)
 		)
 	}
 
-	private fun calcStats(): Pair<Double, Double>{
-		return neuronActivations.values.map { it.toDouble() / runTime }.toDoubleArray().let{
+	private fun calcStats(): Pair<Double, Double> {
+		return neuronActivations.values.map { it.toDouble() / runTime }.toDoubleArray().let {
 			StatUtils.mean(it) to sqrt(StatUtils.variance(it))
 		}
 	}
@@ -46,7 +45,7 @@ class ActivityController : NeuralNetworkController {
 	override fun controlledUpdate(neuron: Neuron, feedback: Feedback, timeStep: Long, fn: () -> Unit) {
 		cachedMean = null
 		cachedStd = null
-		if (neuron.active){
+		if (neuron.active) {
 			neuronActivations[neuron] = neuronActivations.getOrDefault(neuron, 0) + 1
 		}
 		startTimeStep = min(startTimeStep, timeStep)

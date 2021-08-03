@@ -1,8 +1,7 @@
 package we.rashchenko.utils
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 internal class RandomIdsTest {
 
@@ -10,7 +9,7 @@ internal class RandomIdsTest {
 	fun testForSetProperties() {
 		val dataSize = 1000000
 		val data = mutableSetOf<Int>()
-		repeat(dataSize){
+		repeat(dataSize) {
 			data.add(randomIds.next())
 		}
 		assertEquals(data.size, dataSize)

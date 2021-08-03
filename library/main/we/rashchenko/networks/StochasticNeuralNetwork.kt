@@ -3,7 +3,7 @@ package we.rashchenko.networks
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.*
 
-open class StochasticNeuralNetwork: NeuralNetwork {
+open class StochasticNeuralNetwork : NeuralNetwork {
 	override val externalNeurons = mutableSetOf<Neuron>()
 	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
 	final override var timeStep: Long = 0
@@ -16,7 +16,7 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 	override val neurons: Collection<Neuron> = neuronIds.keys
 	override fun getNeuronId(neuron: Neuron): Int? = neuronIds[neuron]
 
-	override fun add(neuron: Neuron){
+	override fun add(neuron: Neuron) {
 		neuronIds[neuron] = randomIds.next()
 		connections[neuron] = mutableListOf()
 		backwardConnections[neuron] = mutableListOf()
@@ -36,30 +36,29 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 		externalNeurons.add(neuron)
 	}
 
-	override fun addConnection(fromNeuron: Neuron, toNeuron: Neuron){
+	override fun addConnection(fromNeuron: Neuron, toNeuron: Neuron) {
 		connections[fromNeuron]!!.add(toNeuron)
 		backwardConnections[toNeuron]!!.add(fromNeuron)
 	}
 
 	private var nextTickNeurons = mutableSetOf<Neuron>()
 	private val setAddingLock = Object()
-	override fun tick(){
+	override fun tick() {
 		val currentTickNeurons = nextTickNeurons
 		nextTickNeurons = mutableSetOf()
-		currentTickNeurons.parallelStream().forEach { source->
-			connections[source]!!.forEach { receiver->
-				if (source.active){
+		currentTickNeurons.parallelStream().forEach { source ->
+			connections[source]!!.forEach { receiver ->
+				if (source.active) {
 					touch(source, receiver)
-				}
-				else{
+				} else {
 					throw Exception("This should never happen")
 				}
 			}
 		}
-		currentTickNeurons.parallelStream().forEach{
+		currentTickNeurons.parallelStream().forEach {
 			update(it, neuronFeedbacks[it]!!.getFeedback(), timeStep)
 			if (it.active) {
-				synchronized(setAddingLock){
+				synchronized(setAddingLock) {
 					nextTickNeurons.add(it)
 				}
 			}
@@ -89,13 +88,15 @@ open class StochasticNeuralNetwork: NeuralNetwork {
 	}
 
 	// neuron based functions moved to protected wrapper fot easy customization in subclasses
-	protected open fun update(neuron: Neuron, feedback: Feedback, timeStep: Long){
+	protected open fun update(neuron: Neuron, feedback: Feedback, timeStep: Long) {
 		neuron.update(feedback, timeStep)
 	}
-	protected open fun touch(neuron: Neuron, sourceNeuronId: Int, timeStep: Long){
+
+	protected open fun touch(neuron: Neuron, sourceNeuronId: Int, timeStep: Long) {
 		neuron.touch(sourceNeuronId, timeStep)
 	}
-	protected open fun getFeedback(neuron: Neuron, sourceNeuronId: Int): Feedback{
+
+	protected open fun getFeedback(neuron: Neuron, sourceNeuronId: Int): Feedback {
 		return neuron.getFeedback(sourceNeuronId)
 	}
 }

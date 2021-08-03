@@ -1,8 +1,7 @@
 package we.rashchenko.utils
 
-import org.junit.jupiter.api.Test
-
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
 internal class BestNTest {
 
@@ -41,7 +40,7 @@ internal class BestNTest {
 	}
 
 	@Test
-	fun testForBestStoring(){
+	fun testForBestStoring() {
 		val bestN = BestN<Int>(3) { o1, o2 -> o1.compareTo(o2) }
 		assertFalse(bestN.contains(2))
 		bestN.addAll(listOf(2, 3, 5))

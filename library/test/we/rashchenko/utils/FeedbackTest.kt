@@ -1,24 +1,23 @@
 package we.rashchenko.utils
 
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
-import java.lang.IllegalArgumentException
 
 internal class FeedbackTest {
 	@Test
 	fun testConstructor() {
-		assertThrows<IllegalArgumentException>{
+		assertThrows<IllegalArgumentException> {
 			Feedback(-2.0)
 		}
-		assertThrows<IllegalArgumentException>{
+		assertThrows<IllegalArgumentException> {
 			Feedback(2.0)
 		}
 	}
 
 	@Test
-	fun testConstants(){
+	fun testConstants() {
 		assertTrue(Feedback(-1.0) == Feedback.VERY_NEGATIVE)
 		assertTrue(Feedback(0.0) == Feedback.NEUTRAL)
 		assertTrue(Feedback(1.0) == Feedback.VERY_POSITIVE)

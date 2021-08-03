@@ -13,14 +13,21 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.*
 import we.rashchenko.environments.EvaluationEnvironment
 import we.rashchenko.environments.SimpleEnvironment
-import we.rashchenko.networks.*
-import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
+import we.rashchenko.networks.ControlledNeuralNetwork
+import we.rashchenko.networks.NeuralNetworkIn2DSpace
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
 import we.rashchenko.networks.controllers.TimeController
+import we.rashchenko.networks.getActiveAndPassiveCoordinates
 import we.rashchenko.neurons.NeuronsManager
-import we.rashchenko.neurons.zoo.*
-import we.rashchenko.utils.*
+import we.rashchenko.neurons.zoo.HebbianAngryNeuronSampler
+import we.rashchenko.neurons.zoo.HebbianHappyNeuronSampler
+import we.rashchenko.neurons.zoo.HebbianNeuronSampler
+import we.rashchenko.neurons.zoo.StochasticNeuronSampler
+import we.rashchenko.utils.KNearestConnectionSampler
+import we.rashchenko.utils.RandomPositionSampler
+import we.rashchenko.utils.Vector2
+import we.rashchenko.utils.hemmingDistance
 
 val externalColor = Color.Blue
 val colorActive = Color.Green
@@ -51,10 +58,10 @@ fun main() {
 		val controlledNN2D = NeuralNetworkIn2DSpace(ControlledNeuralNetwork(nnController, 0.01, 1000))
 		val positionSampler = RandomPositionSampler()
 		val connectionsSampler = KNearestConnectionSampler(5)
-		val nnBuilder = NeuralNetworkIn2DBuilder(
-			controlledNN2D, neuronsManager, positionSampler, positionSampler, connectionsSampler
-		).apply { initialise(1000, evalEnvironment) }
-		EvolvingNeuralNetwork(controlledNN2D, nnBuilder)
+		//val nnBuilder = NeuralNetworkIn2DBuilder(
+		//	controlledNN2D, neuronsManager, positionSampler, positionSampler, connectionsSampler
+		//).apply { initialise(1000, evalEnvironment) }
+		controlledNN2D
 	}
 
 	Window {

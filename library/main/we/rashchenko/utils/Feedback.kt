@@ -1,20 +1,19 @@
 package we.rashchenko.utils
 
-import java.lang.IllegalArgumentException
-
 /**
  * Wrapper for double feedback to make sure it meets limitations.
  * feedback > 0 is positive, for high-quality neurons;
  * feedback < 0 is negative, for neurons that does not help;
  * feedback == 0 is neutral
  */
-data class Feedback(val value: Double): Comparable<Feedback>{
+data class Feedback(val value: Double) : Comparable<Feedback> {
 	init {
-		if (value !in -1.0..1.0){
+		if (value !in -1.0..1.0) {
 			throw IllegalArgumentException("Feedback should be in range [-1, 1]")
 		}
 	}
-	companion object{
+
+	companion object {
 		val VERY_POSITIVE = Feedback(1.0)
 		val VERY_NEGATIVE = Feedback(-1.0)
 		val NEUTRAL = Feedback(0.0)
@@ -25,7 +24,7 @@ data class Feedback(val value: Double): Comparable<Feedback>{
 	}
 }
 
-fun ExponentialMovingAverage.update(feedback: Feedback){
+fun ExponentialMovingAverage.update(feedback: Feedback) {
 	return this.update(feedback.value)
 }
 

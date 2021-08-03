@@ -5,7 +5,6 @@ import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.softmax
 import we.rashchenko.utils.update
 import java.util.*
-import kotlin.IllegalArgumentException
 
 class NeuronsManager : NeuronsSampler {
 	override val name: String = "manager"
@@ -15,15 +14,15 @@ class NeuronsManager : NeuronsSampler {
 	private val random = Random()
 
 	private val defaultScore: Feedback = Feedback.NEUTRAL
-	fun add(sampler: NeuronsSampler){
-		if (samplersScore.keys.any { it.name == sampler.name }){
+	fun add(sampler: NeuronsSampler) {
+		if (samplersScore.keys.any { it.name == sampler.name }) {
 			throw IllegalArgumentException("Sampler with that name already registered at NeuronsManager")
 		}
 		samplersScore[sampler] = ExponentialMovingAverage(defaultScore.value)
 		updateRanges()
 	}
 
-	private fun updateRanges(){
+	private fun updateRanges() {
 		val keys = samplersScore.keys
 		val probabilities = softmax(samplersScore.values.map { it.value })
 
@@ -37,9 +36,9 @@ class NeuronsManager : NeuronsSampler {
 	}
 
 	override fun next(): Neuron {
-		random.nextDouble().let{ randomValue ->
-			probabilityRanges.forEach{ (sampler, probabilityRange) ->
-				if (randomValue in probabilityRange){
+		random.nextDouble().let { randomValue ->
+			probabilityRanges.forEach { (sampler, probabilityRange) ->
+				if (randomValue in probabilityRange) {
 					return sampler.next().also { neuronSamplerMap[it] = sampler }
 				}
 			}
@@ -48,21 +47,21 @@ class NeuronsManager : NeuronsSampler {
 	}
 
 	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {
-		val sampler = neuronSamplerMap[neuron]?: throw IllegalArgumentException("Unknown neuron")
+		val sampler = neuronSamplerMap[neuron] ?: throw IllegalArgumentException("Unknown neuron")
 		sampler.reportFeedback(neuron, feedback)
-		samplersScore[sampler]?.update(feedback)?: throw Exception("Invalid manager state")
+		samplersScore[sampler]?.update(feedback) ?: throw Exception("Invalid manager state")
 		updateRanges()
 	}
 
 	override fun reportDeath(neuron: Neuron) {
-		val sampler = neuronSamplerMap[neuron]?: throw IllegalArgumentException("Unknown neuron")
+		val sampler = neuronSamplerMap[neuron] ?: throw IllegalArgumentException("Unknown neuron")
 		sampler.reportDeath(neuron)
 		neuronSamplerMap.remove(neuron)
 	}
 
-	fun getSummary(){
+	fun getSummary() {
 		samplersScore.forEach { (sampler, score) ->
-			val probability = probabilityRanges[sampler]!!.let{ it.endInclusive - it.start}
+			val probability = probabilityRanges[sampler]!!.let { it.endInclusive - it.start }
 			println("${sampler.name} has score $score and have $probability probability to be chosen next time")
 		}
 	}

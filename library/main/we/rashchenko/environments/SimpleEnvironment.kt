@@ -12,8 +12,8 @@ class SimpleEnvironment(private val tickPeriod: Int) : Environment {
 		private set
 
 	private val random = Random()
-	override fun tick(){
-		if (timeStep % tickPeriod == 0L){
+	override fun tick() {
+		if (timeStep % tickPeriod == 0L) {
 			val newValue = random.nextBoolean()
 			externalSignals.forEach {
 				it.active = newValue

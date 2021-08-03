@@ -2,22 +2,22 @@ package we.rashchenko.utils
 
 import java.lang.Integer.min
 
-interface ConnectionSampler{
+interface ConnectionSampler {
 	fun connectNew(newPosition: Vector2, allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>>
 	fun connectAll(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>>
 }
 
-class KNearestConnectionSampler(private val k: Int): ConnectionSampler{
+class KNearestConnectionSampler(private val k: Int) : ConnectionSampler {
 	override fun connectAll(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>> {
 		val allPositionsList = allPositions.toList()
 		val distances = Array(allPositions.size) { FloatArray(allPositions.size) }
 
 		val result = mutableMapOf<Vector2, Collection<Vector2>>()
-		for (i in allPositions.indices){
+		for (i in allPositions.indices) {
 			val kNearestNeighbourIndices = BestN<Int>(k) { j1, j2 -> -distances[i][j1].compareTo(distances[i][j2]) }
 			kNearestNeighbourIndices.addAll(0 until i)
 
-			for (j in i + 1 until allPositions.size){
+			for (j in i + 1 until allPositions.size) {
 				allPositionsList[i].dst(allPositionsList[j]).also {
 					distances[i][j] = it
 					distances[j][i] = it

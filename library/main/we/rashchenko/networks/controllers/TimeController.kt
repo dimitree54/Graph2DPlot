@@ -1,34 +1,34 @@
 package we.rashchenko.networks.controllers
 
+import org.apache.commons.math3.stat.StatUtils
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.ExponentialMovingAverage
-import we.rashchenko.utils.clip
-import kotlin.system.measureTimeMillis
-import org.apache.commons.math3.stat.StatUtils
 import we.rashchenko.utils.Feedback
+import we.rashchenko.utils.clip
 import kotlin.math.sqrt
+import kotlin.system.measureTimeMillis
 
 class TimeController : NeuralNetworkController {
 	override fun reset() {
 		averageTimePerNeuron.clear()
 	}
+
 	private val averageTimePerNeuron = mutableMapOf<Neuron, ExponentialMovingAverage>()
 	private var cachedMean: Double? = null
 	private var cachedStd: Double? = null
 	override fun getControllerFeedback(neuron: Neuron): Feedback {
-		val (mean, std) = if (cachedMean == null || cachedStd == null){
+		val (mean, std) = if (cachedMean == null || cachedStd == null) {
 			calcStats().also { cachedMean = it.first; cachedStd = it.second }
-		}
-		else{
+		} else {
 			cachedMean!! to cachedStd!!
 		}
-		return averageTimePerNeuron[neuron]?.let{
+		return averageTimePerNeuron[neuron]?.let {
 			Feedback(-((it.value - mean) / std).clip(-1.0, 1.0))  // more than average - bad, less - good
-		}?: Feedback.NEUTRAL
+		} ?: Feedback.NEUTRAL
 	}
 
-	private fun calcStats(): Pair<Double, Double>{
-		return averageTimePerNeuron.values.map { it.value }.toDoubleArray().let{
+	private fun calcStats(): Pair<Double, Double> {
+		return averageTimePerNeuron.values.map { it.value }.toDoubleArray().let {
 			StatUtils.mean(it) to sqrt(StatUtils.variance(it))
 		}
 	}

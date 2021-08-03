@@ -1,13 +1,10 @@
 package we.rashchenko.neurons
 
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.assertThrows
 import we.rashchenko.neurons.zoo.*
 import we.rashchenko.utils.Feedback
-import java.lang.Exception
-import kotlin.IllegalArgumentException
 
 internal class NeuronsManagerTest {
 
@@ -19,7 +16,7 @@ internal class NeuronsManagerTest {
 			add(HebbianAngryNeuronSampler())
 			add(HebbianHappyNeuronSampler())
 		}
-		assertThrows<IllegalArgumentException>{
+		assertThrows<IllegalArgumentException> {
 			neuronsManager.add(StochasticNeuronSampler())
 		}
 	}
@@ -27,7 +24,7 @@ internal class NeuronsManagerTest {
 	@Test
 	fun nextIllegal() {
 		val neuronsManager = NeuronsManager()
-		assertThrows<Exception>{
+		assertThrows<Exception> {
 			neuronsManager.next()
 		}
 	}
@@ -38,23 +35,21 @@ internal class NeuronsManagerTest {
 			add(StochasticNeuronSampler())
 			add(HebbianNeuronSampler())
 		}
-		repeat(10000){
+		repeat(10000) {
 			val neuron = neuronsManager.next()
-			if (neuron is StochasticNeuron){
+			if (neuron is StochasticNeuron) {
 				neuronsManager.reportFeedback(neuron, Feedback.VERY_POSITIVE)
-			}
-			else{
+			} else {
 				neuronsManager.reportFeedback(neuron, Feedback.VERY_NEGATIVE)
 			}
 		}
 		var numStochastic = 0
 		var numHebbian = 0
-		repeat(10000){
+		repeat(10000) {
 			val neuron = neuronsManager.next()
-			if (neuron is StochasticNeuron){
+			if (neuron is StochasticNeuron) {
 				numStochastic++
-			}
-			else{
+			} else {
 				numHebbian++
 			}
 		}
@@ -70,7 +65,7 @@ internal class NeuronsManagerTest {
 			add(HebbianAngryNeuronSampler())
 			add(HebbianHappyNeuronSampler())
 		}
-		assertThrows<IllegalArgumentException>{
+		assertThrows<IllegalArgumentException> {
 			neuronsManager.reportFeedback(StochasticNeuron(), Feedback.VERY_NEGATIVE)
 		}
 		neuronsManager.next().also { neuronsManager.reportFeedback(it, Feedback.VERY_NEGATIVE) }
@@ -84,7 +79,7 @@ internal class NeuronsManagerTest {
 			add(HebbianAngryNeuronSampler())
 			add(HebbianHappyNeuronSampler())
 		}
-		assertThrows<IllegalArgumentException>{
+		assertThrows<IllegalArgumentException> {
 			neuronsManager.reportDeath(StochasticNeuron())
 		}
 		neuronsManager.next().also { neuronsManager.reportDeath(it) }
@@ -97,12 +92,11 @@ internal class NeuronsManagerTest {
 			add(HebbianNeuronSampler())
 		}
 		neuronsManager.getSummary()
-		repeat(10000){
+		repeat(10000) {
 			val neuron = neuronsManager.next()
-			if (neuron is StochasticNeuron){
+			if (neuron is StochasticNeuron) {
 				neuronsManager.reportFeedback(neuron, Feedback.VERY_POSITIVE)
-			}
-			else{
+			} else {
 				neuronsManager.reportFeedback(neuron, Feedback.VERY_NEGATIVE)
 			}
 		}

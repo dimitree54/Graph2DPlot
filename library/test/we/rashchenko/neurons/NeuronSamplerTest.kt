@@ -31,11 +31,11 @@ internal abstract class NeuronSamplerTest {
 		val neuronToTest: Neuron
 		measureTimeMillis {
 			// imitating init
-			repeat(numNeurons){
+			repeat(numNeurons) {
 				neurons.add(sampler.next())
 			}
 			// imitating work
-			repeat(numSamplerTicks){
+			repeat(numSamplerTicks) {
 				sampler.reportFeedback(neurons[r.nextInt(neurons.size)], Feedback(r.nextDouble() * 2 - 1))
 
 				val i = r.nextInt(neurons.size)
@@ -44,7 +44,7 @@ internal abstract class NeuronSamplerTest {
 				neurons.add(sampler.next())
 			}
 			neuronToTest = sampler.next()  // neuron from the middle of sequence
-			neurons.forEach{ sampler.reportDeath(it)}
+			neurons.forEach { sampler.reportDeath(it) }
 		}.also { assertTrue(it < timeLimitMillisForSampler) }
 
 		val sizeAfter = GraphLayout.parseInstance(sampler).totalSize()
@@ -57,24 +57,24 @@ internal abstract class NeuronSamplerTest {
 	private fun testMemoryUsageAndRuntimeOfTheNeuron(neuron: Neuron) {
 		val r = Random()
 		// imitating work
-		val fakeNeighboursIds = mutableListOf<Int>().also {
-				neighbours -> repeat(numNeighboursForNeuron){ neighbours.add(randomIds.next()) } }
+		val fakeNeighboursIds =
+			mutableListOf<Int>().also { neighbours -> repeat(numNeighboursForNeuron) { neighbours.add(randomIds.next()) } }
 		measureTimeMillis {
 			var timeStep = 0L
-			repeat(numNeuronTicks){
-				if(r.nextDouble() < 0.1){
+			repeat(numNeuronTicks) {
+				if (r.nextDouble() < 0.1) {
 					neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 				}
-				if(r.nextDouble() < 0.1){
+				if (r.nextDouble() < 0.1) {
 					neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 				}
-				if(r.nextDouble() < 0.1){
+				if (r.nextDouble() < 0.1) {
 					neuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
 				}
-				if(r.nextDouble() < 0.1){
+				if (r.nextDouble() < 0.1) {
 					neuron.getFeedback(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)])
 				}
-				if(r.nextDouble() < 0.1){
+				if (r.nextDouble() < 0.1) {
 					val i = r.nextInt(fakeNeighboursIds.size)
 					neuron.forgetSource(fakeNeighboursIds[i])
 					fakeNeighboursIds[i] = r.nextInt()
@@ -82,7 +82,7 @@ internal abstract class NeuronSamplerTest {
 				timeStep += r.nextInt(100)
 				neuron.active
 			}
-			fakeNeighboursIds.forEach{ neuron.forgetSource(it) }
+			fakeNeighboursIds.forEach { neuron.forgetSource(it) }
 		}.also { assertTrue(it < timeLimitMillisForNeuron) }
 
 		val sizeAfter = GraphLayout.parseInstance(neuron).totalSize()
@@ -92,51 +92,56 @@ internal abstract class NeuronSamplerTest {
 	private fun testExternalControlling(neuron: Neuron) {
 		val r = Random()
 		// imitating work
-		val fakeNeighboursIds = mutableListOf<Int>().also {
-				neighbours -> repeat(numNeighboursForNeuron){ neighbours.add(randomIds.next()) } }
+		val fakeNeighboursIds =
+			mutableListOf<Int>().also { neighbours -> repeat(numNeighboursForNeuron) { neighbours.add(randomIds.next()) } }
 
 		val externallyControlledNeuron = ExternallyControlledNeuron(neuron)
 		var timeStep = 0L
-		repeat(numNeuronTicks){
-			if(r.nextDouble() < 0.1){
+		repeat(numNeuronTicks) {
+			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.externallyControlled = !externallyControlledNeuron.externallyControlled
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				val newValue = r.nextBoolean()
 				externallyControlledNeuron.active = newValue
 				if (externallyControlledNeuron.externallyControlled) {
 					assertEquals(externallyControlledNeuron.active, newValue)
-					if (newValue){
+					if (newValue) {
 						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
-						assertEquals(externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]), Feedback.VERY_POSITIVE)
-					}
-					else{
+						assertEquals(
+							externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]),
+							Feedback.VERY_POSITIVE
+						)
+					} else {
 						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
-						assertEquals(externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]), Feedback.VERY_NEGATIVE)
+						assertEquals(
+							externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]),
+							Feedback.VERY_NEGATIVE
+						)
 					}
-				}
-				else{
+				} else {
 					assertEquals(externallyControlledNeuron.active, neuron.active)
 				}
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.getFeedback(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)])
 			}
-			if(r.nextDouble() < 0.1){
+			if (r.nextDouble() < 0.1) {
 				val i = r.nextInt(fakeNeighboursIds.size)
 				externallyControlledNeuron.forgetSource(fakeNeighboursIds[i])
 				fakeNeighboursIds[i] = r.nextInt()
 			}
 			timeStep += r.nextInt(100)
 		}
+		// @todo make test for parallel neuron functions calling
 	}
 }

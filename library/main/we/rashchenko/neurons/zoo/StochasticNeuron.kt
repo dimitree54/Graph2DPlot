@@ -4,7 +4,7 @@ import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
 import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.clip
-import java.util.Random
+import java.util.*
 
 open class StochasticNeuron : Neuron {
 	private val random = Random()
@@ -49,7 +49,7 @@ open class StochasticNeuron : Neuron {
 }
 
 
-class StochasticNeuronSampler: NeuronsSampler{
+class StochasticNeuronSampler : NeuronsSampler {
 	override val name: String = "StochasticNeuron"
 	override fun next(): Neuron {
 		return StochasticNeuron()

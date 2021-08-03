@@ -56,7 +56,7 @@ fun networkDrawer(
 	onClick: () -> Unit,
 	onLongClick: () -> Unit
 ) {
-	Canvas(modifier = Modifier.fillMaxSize().combinedClickable(onLongClick=onLongClick, onClick = onClick)) {
+	Canvas(modifier = Modifier.fillMaxSize().combinedClickable(onLongClick = onLongClick, onClick = onClick)) {
 		drawNN(nn)
 	}
 	networkStateDrawer(networkState, modifier = Modifier.fillMaxSize())

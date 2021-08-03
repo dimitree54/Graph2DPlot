@@ -15,6 +15,7 @@ class EvaluationEnvironment(
 	init {
 		baseEnvironment.onSignalUpdate = this::onSignalUpdate
 	}
+
 	private val random = Random()
 	private val lossAggregator = ExponentialMovingAverage(0.0)
 	val loss: Double
@@ -59,7 +60,8 @@ class EvaluationEnvironment(
 		baseEnvironment.tick()
 		if (testMode) {
 			val (target, prediction) = neuronsToTest.mapNotNull {
-				targetActivity[it]?.let { targetActive -> targetActive to it.active } }.unzip()
+				targetActivity[it]?.let { targetActive -> targetActive to it.active }
+			}.unzip()
 			lossAggregator.update(lossFn(target, prediction))
 		}
 	}

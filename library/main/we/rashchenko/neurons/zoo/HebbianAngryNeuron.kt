@@ -9,7 +9,7 @@ open class HebbianAngryNeuron : HebbianNeuron() {
 }
 
 
-class HebbianAngryNeuronSampler: NeuronsSampler{
+class HebbianAngryNeuronSampler : NeuronsSampler {
 	override val name: String = "HebbianAngryNeuron"
 	override fun next(): Neuron {
 		return HebbianAngryNeuron()

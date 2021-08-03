@@ -9,7 +9,7 @@ interface NeuralNetworkController {
 	/**
 	 * As controller function supposed to evaluate all neurons (even never active) it may be slow. So instead of
 	 * online Feedback (as in Neuron.getFeedback) it probably returns some aggregated feedback (for example using
-	 * ExponentialMovingAverage). So probably sometimes it make sense to clear that aggregation to start evaluation
+	 * ExponentialMovingAverage). So probably sometimes it makes sense to clear that aggregation to start evaluation
 	 * from the scratch. For that purpose reset function provided.
 	 */
 	fun reset()

@@ -3,7 +3,7 @@ package we.rashchenko.neurons.zoo
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
 import we.rashchenko.utils.Feedback
-import java.util.Random
+import java.util.*
 
 open class HebbianNeuron : Neuron {
 	private val random = Random()
@@ -19,11 +19,10 @@ open class HebbianNeuron : Neuron {
 
 	override fun touch(sourceId: Int, timeStep: Long) {
 		weights.getOrPut(sourceId, ::initializeNewWeight).let {
-			if (random.nextDouble() < it){
+			if (random.nextDouble() < it) {
 				internalActive = true
 				weights[sourceId] = it + 0.01
-			}
-			else{
+			} else {
 				weights[sourceId] = it - 0.001
 			}
 		}
@@ -42,7 +41,7 @@ open class HebbianNeuron : Neuron {
 }
 
 
-class HebbianNeuronSampler: NeuronsSampler{
+class HebbianNeuronSampler : NeuronsSampler {
 	override val name: String = "HebbianNeuron"
 	override fun next(): Neuron {
 		return HebbianNeuron()

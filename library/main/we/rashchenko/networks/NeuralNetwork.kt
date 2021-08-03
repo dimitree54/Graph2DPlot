@@ -3,7 +3,7 @@ package we.rashchenko.networks
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Feedback
 
-interface NeuralNetwork{
+interface NeuralNetwork {
 	val neurons: Collection<Neuron>
 	val externalNeurons: Collection<Neuron>
 	val connections: Map<Neuron, Collection<Neuron>>

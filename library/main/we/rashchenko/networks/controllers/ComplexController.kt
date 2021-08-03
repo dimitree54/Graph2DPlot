@@ -7,6 +7,7 @@ class ComplexController(private vararg val controllers: NeuralNetworkController)
 	override fun reset() {
 		controllers.forEach { it.reset() }
 	}
+
 	override fun getControllerFeedback(neuron: Neuron): Feedback {
 		return Feedback(controllers.sumOf { it.getControllerFeedback(neuron).value } / controllers.size)
 	}

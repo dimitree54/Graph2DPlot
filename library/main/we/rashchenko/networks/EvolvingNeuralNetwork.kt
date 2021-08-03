@@ -8,7 +8,7 @@ class EvolvingNeuralNetwork(
 ) : NeuralNetwork by neuralNetwork {
 	override fun tick() {
 		neuralNetwork.tick()
-		if (timeStep % evolveEveryNTicks == 0L){
+		if (timeStep % evolveEveryNTicks == 0L) {
 			neuralNetworkEvolutionBuilder.evolutionStep(neuronsForSelection)
 		}
 	}

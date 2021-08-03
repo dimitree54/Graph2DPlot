@@ -19,7 +19,7 @@ open class ControlledNeuralNetwork(
 		controlling = random.nextDouble() < auditProbability
 		super.tick()
 		// @todo considering that we update rarely, should we increase weight of that feedback?
-		if (timeStep % checkControllerFeedbackEveryNTicks == 0L){
+		if (timeStep % checkControllerFeedbackEveryNTicks == 0L) {
 			neurons.forEach {
 				neuronFeedbacks.getOrPut(it) { ExponentialMovingAverage(0.0) }.update(
 					controller.getControllerFeedback(it)
