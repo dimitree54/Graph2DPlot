@@ -1,19 +1,16 @@
 package we.rashchenko.networks
 
+import we.rashchenko.base.Ticking
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Feedback
 
-interface NeuralNetwork {
+interface NeuralNetwork : Ticking {
 	val neurons: Collection<Neuron>
-	val externalNeurons: Collection<Neuron>
 	val connections: Map<Neuron, Collection<Neuron>>
-	val timeStep: Long
 
-	fun add(neuron: Neuron)
-	fun remove(neuron: Neuron)
-	fun addExternal(neuron: Neuron)
-	fun addConnection(fromNeuron: Neuron, toNeuron: Neuron)
+	fun add(neuron: Neuron): Boolean
+	fun remove(neuron: Neuron): Boolean
+	fun addConnection(fromNeuron: Neuron, toNeuron: Neuron): Boolean
 	fun getNeuronId(neuron: Neuron): Int?
-	fun tick()
-	fun getFeedback(neuron: Neuron): Feedback
+	fun getFeedback(neuron: Neuron): Feedback?
 }

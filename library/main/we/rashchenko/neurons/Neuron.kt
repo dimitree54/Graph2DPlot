@@ -1,17 +1,17 @@
 package we.rashchenko.neurons
 
+import we.rashchenko.base.Activity
 import we.rashchenko.utils.Feedback
 
 
-interface Neuron {
-	val active: Boolean
+interface Neuron : Activity {
 
 	/**
 	 * If that called it means the neuron received incoming signal from other neuron with sourceId.
 	 * The set of possible incoming sourceId is dynamic and may change with time.
 	 * Here active property may be changed.
 	 */
-	fun touch(sourceId: Int, timeStep: Long)
+	fun touch(sourceId: Int, timeStep: Long): Boolean
 
 	/**
 	 * External controller have decided to break connection between this neuron and other neuron with sourceId.

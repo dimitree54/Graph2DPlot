@@ -1,10 +1,12 @@
 package we.rashchenko.networks.builders
 
-import we.rashchenko.environments.Environment
+import we.rashchenko.networks.NeuralNetwork
 import we.rashchenko.neurons.Neuron
+import we.rashchenko.neurons.NeuronsSampler
 
 interface NeuralNetworkBuilder {
-	fun initialise(numberOfNeurons: Int, environment: Environment)
-	fun addNeurons(nNewNeurons: Int)
-	fun removeNeurons(neuronsToRemove: Collection<Neuron>)
+	val neuralNetwork: NeuralNetwork
+	val neuronsSampler: NeuronsSampler
+	fun addNeuron(): Neuron
+	fun remove(neuronToRemove: Neuron): Boolean
 }

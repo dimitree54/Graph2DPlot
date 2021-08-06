@@ -2,6 +2,7 @@ package we.rashchenko.neurons
 
 import org.junit.jupiter.api.Test
 import org.openjdk.jol.info.GraphLayout
+import we.rashchenko.base.ExternallyControlledActivity
 import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.randomIds
 import java.util.*
@@ -95,33 +96,14 @@ internal abstract class NeuronSamplerTest {
 		val fakeNeighboursIds =
 			mutableListOf<Int>().also { neighbours -> repeat(numNeighboursForNeuron) { neighbours.add(randomIds.next()) } }
 
-		val externallyControlledNeuron = ExternallyControlledNeuron(neuron)
+		val externalActivity = ExternallyControlledActivity()
+		val externallyControlledNeuron = MirroringNeuron(externalActivity, neuron)
 		var timeStep = 0L
 		repeat(numNeuronTicks) {
 			if (r.nextDouble() < 0.1) {
-				externallyControlledNeuron.externallyControlled = !externallyControlledNeuron.externallyControlled
-			}
-			if (r.nextDouble() < 0.1) {
 				val newValue = r.nextBoolean()
-				externallyControlledNeuron.active = newValue
-				if (externallyControlledNeuron.externallyControlled) {
-					assertEquals(externallyControlledNeuron.active, newValue)
-					if (newValue) {
-						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
-						assertEquals(
-							externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]),
-							Feedback.VERY_POSITIVE
-						)
-					} else {
-						externallyControlledNeuron.touch(fakeNeighboursIds[0], timeStep)
-						assertEquals(
-							externallyControlledNeuron.getFeedback(fakeNeighboursIds[0]),
-							Feedback.VERY_NEGATIVE
-						)
-					}
-				} else {
-					assertEquals(externallyControlledNeuron.active, neuron.active)
-				}
+				externalActivity.active = newValue
+				assertEquals(externallyControlledNeuron.active, newValue)
 			}
 			if (r.nextDouble() < 0.1) {
 				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)

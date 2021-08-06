@@ -17,7 +17,7 @@ open class HebbianNeuron : Neuron {
 	override val active: Boolean
 		get() = internalActive
 
-	override fun touch(sourceId: Int, timeStep: Long) {
+	override fun touch(sourceId: Int, timeStep: Long): Boolean {
 		weights.getOrPut(sourceId, ::initializeNewWeight).let {
 			if (random.nextDouble() < it) {
 				internalActive = true
@@ -26,6 +26,7 @@ open class HebbianNeuron : Neuron {
 				weights[sourceId] = it - 0.001
 			}
 		}
+		return internalActive
 	}
 
 	override fun forgetSource(sourceId: Int) {

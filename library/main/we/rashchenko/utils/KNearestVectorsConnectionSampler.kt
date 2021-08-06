@@ -2,13 +2,8 @@ package we.rashchenko.utils
 
 import java.lang.Integer.min
 
-interface ConnectionSampler {
-	fun connectNew(newPosition: Vector2, allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>>
-	fun connectAll(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>>
-}
-
-class KNearestConnectionSampler(private val k: Int) : ConnectionSampler {
-	override fun connectAll(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>> {
+class KNearestVectorsConnectionSampler(private val k: Int) {
+	fun connectAll(allPositions: Collection<Vector2>): Map<Vector2, Collection<Vector2>> {
 		val allPositionsList = allPositions.toList()
 		val distances = Array(allPositions.size) { FloatArray(allPositions.size) }
 
@@ -35,7 +30,7 @@ class KNearestConnectionSampler(private val k: Int) : ConnectionSampler {
 	 * kNearestStructure. That function connects newPosition to kNearest positions, but also connects each
 	 * of those nearest positions to that new position, making them not kNearest.
 	 */
-	override fun connectNew(
+	fun connectNew(
 		newPosition: Vector2,
 		allPositions: Collection<Vector2>
 	): Map<Vector2, Collection<Vector2>> {
