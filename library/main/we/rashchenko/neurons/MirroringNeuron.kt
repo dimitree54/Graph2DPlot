@@ -25,4 +25,8 @@ class MirroringNeuron(
 
 	override val active: Boolean
 		get() = externalActivity.active
+
+	fun getMismatch(): Double {
+		return if (externalActivity.active == baseNeuron.active) 0.0 else 1.0
+	}
 }

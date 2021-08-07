@@ -1,63 +1,100 @@
 package we.rashchenko
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.PointMode
-import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import we.rashchenko.networks.NeuralNetworkIn2DSpace
-import we.rashchenko.networks.getConnections
-import we.rashchenko.networks.getExternalCoordinates
+import we.rashchenko.networks.ControlledNeuralNetwork
+import we.rashchenko.networks.NeuralNetwork
+import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
+import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.Vector2
 
-fun DrawScope.drawNN(nn2d: NeuralNetworkIn2DSpace) {
+val inputColor = Color.Blue
+val colorActive = Color.Green
+val colorPassive = Color.Red
+val backColor = Color.Black
+
+enum class NeuronsDrawingMode {
+	ACTIVITY, FEEDBACK, EXTERNAL_ONLY_FEEDBACK, INTERNAL_ONLY_FEEDBACK;
+
+	fun next(): NeuronsDrawingMode {
+		return values().first { it.ordinal == (ordinal + 1) % values().size }
+	}
+}
+
+fun NeuralNetworkIn2DBuilder.getAllPositions(scale: Vector2 = Vector2.ONES): List<Vector2> {
+	return neuralNetwork.neurons.map { getPosition(it)!!.scl(scale) }
+}
+
+fun NeuralNetwork.getActivePassiveColors(): List<Color> {
+	return neurons.map { if (it.active) colorActive else colorPassive }
+}
+
+fun NeuralNetworkIn2DBuilder.getInputPositions(scale: Vector2 = Vector2.ONES): List<Vector2> =
+	neuralNetwork.inputNeurons.map { getPosition(it)!!.scl(scale) }
+
+fun NeuralNetwork.getNeuronFeedbackColors(): List<Color> {
+	return neurons.map { getFeedbackColor(getFeedback(it)!!) }
+}
+
+fun ControlledNeuralNetwork.getControllerFeedbackColors(): List<Color> {
+	return neurons.map { getFeedbackColor(getControllerFeedback(it)!!) }
+}
+
+fun ControlledNeuralNetwork.getCollaborativeFeedbackColors(): List<Color> {
+	return neurons.map { getFeedbackColor(getCollaborativeFeedback(it)!!) }
+}
+
+fun NeuralNetworkIn2DBuilder.getConnectionsWithColor(scale: Vector2 = Vector2.ONES):
+		List<Triple<Vector2, Vector2, Color>> =
+	neuralNetwork.connections.map { (source, receivers) ->
+		receivers.map { receiver ->
+			Triple(
+				getPosition(source)!!.scl(scale), getPosition(receiver)!!.scl(scale),
+				getFeedbackColor(receiver.getFeedback(neuralNetwork.getNeuronId(source)!!))
+			)
+		}
+	}.flatten()
+
+fun getFeedbackColor(feedback: Feedback): Color {
+	return Color(127f - 127f * feedback.value.toFloat(), 127f + 127f * feedback.value.toFloat(), 0f)
+}
+
+fun DrawScope.clear() {
 	drawRect(backColor)
-	val scale = Vector2(size.width, size.height)
-	nn2d.getConnections(scale).forEach { (source, receiver) ->
-		drawLine(connectionColor, Offset(source.x, source.y), Offset(receiver.x, receiver.y))
-	}
-	drawPoints(
-		nn2d.getExternalCoordinates(scale).map { Offset(it.x, it.y) },
-		PointMode.Points, externalColor, strokeWidth = 15f, cap = StrokeCap.Round
-	)
 }
 
-fun DrawScope.drawNNState(activePositions: Collection<Vector2>, passivePositions: Collection<Vector2>) {
-	drawPoints(
-		activePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorActive,
-		strokeWidth = 5f, cap = StrokeCap.Round
-	)
-	drawPoints(
-		passivePositions.map { Offset(it.x, it.y) }, PointMode.Points, colorPassive,
-		strokeWidth = 5f, cap = StrokeCap.Round
-	)
-}
-
-@Composable
-fun networkStateDrawer(activeAndPassiveNeurons: MutableState<Pair<List<Vector2>, List<Vector2>>>, modifier: Modifier) {
-	Canvas(modifier = modifier) {
-		val scale = Vector2(size.width, size.height)
-		drawNNState(activeAndPassiveNeurons.value.first.map { it.scl(scale) },
-			activeAndPassiveNeurons.value.second.map { it.scl(scale) })
+fun DrawScope.drawNNConnections(connectionsWithColor: List<Triple<Vector2, Vector2, Color>>) {
+	connectionsWithColor.forEach { (source, receiver, color) ->
+		val perpendicular = Vector2(receiver.y - source.y, -(receiver.x - source.x)).normalize()
+		drawLine(
+			color,
+			Offset(source.x + perpendicular.x, source.y + perpendicular.y),
+			Offset(receiver.x + perpendicular.x, receiver.y + perpendicular.y)
+		)
 	}
 }
 
-@ExperimentalFoundationApi
-@Composable
-fun networkDrawer(
-	nn: NeuralNetworkIn2DSpace,
-	networkState: MutableState<Pair<List<Vector2>, List<Vector2>>>,
-	onClick: () -> Unit,
-	onLongClick: () -> Unit
+fun DrawScope.drawInputs(positions: List<Vector2>) {
+	positions.forEach { position ->
+		drawCircle(inputColor, 7f, Offset(position.x, position.y))
+	}
+}
+
+fun DrawScope.drawNeurons(positions: List<Vector2>, colors: List<Color>) {
+	positions.zip(colors).forEach { (position, color) ->
+		drawCircle(color, 3f, Offset(position.x, position.y))
+	}
+}
+
+fun DrawScope.drawNeuralNetwork(
+	connectionsWithColor: List<Triple<Vector2, Vector2, Color>>,
+	inputPositions: List<Vector2>,
+	positions: List<Vector2>, colors: List<Color>
 ) {
-	Canvas(modifier = Modifier.fillMaxSize().combinedClickable(onLongClick = onLongClick, onClick = onClick)) {
-		drawNN(nn)
-	}
-	networkStateDrawer(networkState, modifier = Modifier.fillMaxSize())
+	clear()
+	val scale = Vector2(size.width, size.height)
+	drawNNConnections(connectionsWithColor.map { Triple(it.first.scl(scale), it.second.scl(scale), it.third) })
+	drawInputs(inputPositions.map { it.scl(scale) })
+	drawNeurons(positions.map { it.scl(scale) }, colors)
 }

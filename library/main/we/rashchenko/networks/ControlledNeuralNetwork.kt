@@ -64,4 +64,12 @@ class ControlledNeuralNetwork(
 			)
 		}
 	}
+
+	fun getControllerFeedback(neuron: Neuron): Feedback? {
+		return controllerFeedbacks[neuron]
+	}
+
+	fun getCollaborativeFeedback(neuron: Neuron): Feedback? {
+		return baseNeuralNetwork.getFeedback(neuron)
+	}
 }

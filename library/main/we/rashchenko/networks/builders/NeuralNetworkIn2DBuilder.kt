@@ -6,7 +6,6 @@ import we.rashchenko.networks.NeuralNetwork
 import we.rashchenko.neurons.MirroringNeuron
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
-import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.KNearestVectorsConnectionSampler
 import we.rashchenko.utils.RandomPositionSampler
 import we.rashchenko.utils.Vector2
@@ -100,23 +99,3 @@ class NeuralNetworkIn2DBuilder(
 
 	fun getPosition(neuron: Neuron): Vector2? = positions[neuron]
 }
-
-fun NeuralNetworkIn2DBuilder.getActiveAndPassiveCoordinates(scale: Vector2 = Vector2.ONES):
-		Pair<List<Vector2>, List<Vector2>> {
-	val (activeNeurons, passiveNeurons) = neuralNetwork.neurons.partition { it.active }
-	return activeNeurons.map { getPosition(it)!!.scl(scale) } to passiveNeurons.map { getPosition(it)!!.scl(scale) }
-}
-
-fun NeuralNetworkIn2DBuilder.getExternalCoordinates(scale: Vector2 = Vector2.ONES): List<Vector2> =
-	neuralNetwork.neurons.filterIsInstance<MirroringNeuron>().map { getPosition(it)!!.scl(scale) }
-
-fun NeuralNetworkIn2DBuilder.getConnectionsWithFeedbackWithFeedback(scale: Vector2 = Vector2.ONES):
-		List<Triple<Vector2, Vector2, Feedback>> =
-	neuralNetwork.connections.map { (source, receivers) ->
-		receivers.map { receiver ->
-			Triple(
-				getPosition(source)!!.scl(scale), getPosition(receiver)!!.scl(scale),
-				receiver.getFeedback(neuralNetwork.getNeuronId(source)!!)
-			)
-		}
-	}.flatten()

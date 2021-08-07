@@ -7,7 +7,7 @@ import we.rashchenko.utils.*
 class StochasticNeuralNetwork : NeuralNetwork {
 	private val neuronIds = mutableMapOf<Neuron, Int>()
 	override val neurons: Collection<Neuron> = neuronIds.keys
-	private val inputNeurons = mutableSetOf<Neuron>()
+	override val inputNeurons = mutableSetOf<MirroringNeuron>()
 
 	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
 	private val backwardConnections = mutableMapOf<Neuron, MutableList<Neuron>>()

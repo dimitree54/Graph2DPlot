@@ -97,29 +97,29 @@ internal abstract class NeuronSamplerTest {
 			mutableListOf<Int>().also { neighbours -> repeat(numNeighboursForNeuron) { neighbours.add(randomIds.next()) } }
 
 		val externalActivity = ExternallyControlledActivity()
-		val externallyControlledNeuron = MirroringNeuron(externalActivity, neuron)
+		val mirroringNeuron = MirroringNeuron(externalActivity, neuron)
 		var timeStep = 0L
 		repeat(numNeuronTicks) {
 			if (r.nextDouble() < 0.1) {
 				val newValue = r.nextBoolean()
 				externalActivity.active = newValue
-				assertEquals(externallyControlledNeuron.active, newValue)
+				assertEquals(mirroringNeuron.active, newValue)
 			}
 			if (r.nextDouble() < 0.1) {
-				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 			}
 			if (r.nextDouble() < 0.1) {
-				externallyControlledNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
 			}
 			if (r.nextDouble() < 0.1) {
-				externallyControlledNeuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
+				mirroringNeuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
 			}
 			if (r.nextDouble() < 0.1) {
-				externallyControlledNeuron.getFeedback(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)])
+				mirroringNeuron.getFeedback(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)])
 			}
 			if (r.nextDouble() < 0.1) {
 				val i = r.nextInt(fakeNeighboursIds.size)
-				externallyControlledNeuron.forgetSource(fakeNeighboursIds[i])
+				mirroringNeuron.forgetSource(fakeNeighboursIds[i])
 				fakeNeighboursIds[i] = r.nextInt()
 			}
 			timeStep += r.nextInt(100)

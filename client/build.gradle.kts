@@ -16,6 +16,11 @@ dependencies {
 	// default dependencies for Compose app
 	implementation(kotlin("stdlib"))
 	implementation(compose.desktop.currentOs)
+	implementation("org.junit.jupiter:junit-jupiter:5.7.0")
+}
+
+tasks.test {
+	useJUnitPlatform()
 }
 
 task("prepareKotlinBuildScriptModel") {
