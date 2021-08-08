@@ -64,10 +64,12 @@ internal abstract class NeuronSamplerTest {
 			var timeStep = 0L
 			repeat(numNeuronTicks) {
 				if (r.nextDouble() < 0.1) {
-					neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+					val active = neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+					assertEquals(active, neuron.active)
 				}
 				if (r.nextDouble() < 0.1) {
-					neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+					val active = neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+					assertEquals(active, neuron.active)
 				}
 				if (r.nextDouble() < 0.1) {
 					neuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)
@@ -106,10 +108,12 @@ internal abstract class NeuronSamplerTest {
 				assertEquals(mirroringNeuron.active, newValue)
 			}
 			if (r.nextDouble() < 0.1) {
-				mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				val active = mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				assertEquals(active, neuron.active)
 			}
 			if (r.nextDouble() < 0.1) {
-				mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				val active = mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
+				assertEquals(active, neuron.active)
 			}
 			if (r.nextDouble() < 0.1) {
 				mirroringNeuron.update(Feedback(r.nextDouble() * 2 - 1), timeStep)

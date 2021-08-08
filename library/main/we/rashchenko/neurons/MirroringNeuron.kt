@@ -10,7 +10,7 @@ import we.rashchenko.utils.Feedback
 //  - other option is to make internal activity dominating and make external activity only affecting feedback,
 //     that is good for training, but how initial activity will appear at network?
 class MirroringNeuron(
-	private val externalActivity: Activity, private val baseNeuron: Neuron
+	private val externalActivity: Activity, val baseNeuron: Neuron
 ) : Neuron by baseNeuron {
 	override fun update(feedback: Feedback, timeStep: Long) {
 		baseNeuron.update(

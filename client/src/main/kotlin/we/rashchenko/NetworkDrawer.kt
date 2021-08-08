@@ -12,10 +12,10 @@ import we.rashchenko.utils.Vector2
 val inputColor = Color.Blue
 val colorActive = Color.Green
 val colorPassive = Color.Red
-val backColor = Color.Black
+val backColor = Color.White
 
 enum class NeuronsDrawingMode {
-	ACTIVITY, FEEDBACK, EXTERNAL_ONLY_FEEDBACK, INTERNAL_ONLY_FEEDBACK;
+	ACTIVITY, FEEDBACK, EXTERNAL_FEEDBACK, INTERNAL_FEEDBACK;
 
 	fun next(): NeuronsDrawingMode {
 		return values().first { it.ordinal == (ordinal + 1) % values().size }
@@ -51,13 +51,13 @@ fun NeuralNetworkIn2DBuilder.getConnectionsWithColor(scale: Vector2 = Vector2.ON
 		receivers.map { receiver ->
 			Triple(
 				getPosition(source)!!.scl(scale), getPosition(receiver)!!.scl(scale),
-				getFeedbackColor(receiver.getFeedback(neuralNetwork.getNeuronId(source)!!))
+				Color.Gray  // getFeedbackColor(receiver.getFeedback(neuralNetwork.getNeuronId(source)!!))
 			)
 		}
 	}.flatten()
 
 fun getFeedbackColor(feedback: Feedback): Color {
-	return Color(127f - 127f * feedback.value.toFloat(), 127f + 127f * feedback.value.toFloat(), 0f)
+	return Color(0.5f - feedback.value.toFloat() / 2, 0.5f + feedback.value.toFloat() / 2, 0f)
 }
 
 fun DrawScope.clear() {
@@ -77,13 +77,13 @@ fun DrawScope.drawNNConnections(connectionsWithColor: List<Triple<Vector2, Vecto
 
 fun DrawScope.drawInputs(positions: List<Vector2>) {
 	positions.forEach { position ->
-		drawCircle(inputColor, 7f, Offset(position.x, position.y))
+		drawCircle(inputColor, 8f, Offset(position.x, position.y))
 	}
 }
 
 fun DrawScope.drawNeurons(positions: List<Vector2>, colors: List<Color>) {
 	positions.zip(colors).forEach { (position, color) ->
-		drawCircle(color, 3f, Offset(position.x, position.y))
+		drawCircle(color, 4f, Offset(position.x, position.y))
 	}
 }
 

@@ -91,7 +91,7 @@ internal class NeuronsManagerTest {
 			add(StochasticNeuronSampler())
 			add(HebbianNeuronSampler())
 		}
-		neuronsManager.getSummary()
+		println(neuronsManager.getSummary())
 		repeat(10000) {
 			val neuron = neuronsManager.next()
 			if (neuron is StochasticNeuron) {
@@ -100,6 +100,6 @@ internal class NeuronsManagerTest {
 				neuronsManager.reportFeedback(neuron, Feedback.VERY_NEGATIVE)
 			}
 		}
-		neuronsManager.getSummary()
+		println(neuronsManager.getSummary())
 	}
 }

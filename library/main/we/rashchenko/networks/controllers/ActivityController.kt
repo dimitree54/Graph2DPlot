@@ -13,7 +13,7 @@ class ActivityController : NeuralNetworkController {
 			val mean = StatUtils.mean(activities)
 			val std = sqrt(StatUtils.variance(activities))
 			// near average activity is good (~1.0), deviation in both sides bad (down to -1.0)
-			return activities.map { Feedback((1 - 2 * abs(it - mean) / std).clip(-1.0, 1.0)) }
+			return activities.map { Feedback((1 - 2 * abs(it - mean) / (std + 0.001)).clip(-1.0, 1.0)) }
 		}
 	}
 }

@@ -22,11 +22,12 @@ open class HebbianNeuron : Neuron {
 			if (random.nextDouble() < it) {
 				internalActive = true
 				weights[sourceId] = it + 0.01
+				return true
 			} else {
 				weights[sourceId] = it - 0.001
 			}
 		}
-		return internalActive
+		return false
 	}
 
 	override fun forgetSource(sourceId: Int) {

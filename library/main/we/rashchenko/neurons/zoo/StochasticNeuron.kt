@@ -26,8 +26,9 @@ open class StochasticNeuron : Neuron {
 			internalActive = true
 			activatedOnTimeStep = timeStep
 			activatedOnTouchFrom = sourceId
+			return true
 		}
-		return internalActive
+		return false
 	}
 
 	override fun forgetSource(sourceId: Int) {

@@ -1,6 +1,7 @@
 package we.rashchenko.networks
 
 import we.rashchenko.networks.builders.NeuralNetworkBuilder
+import we.rashchenko.neurons.MirroringNeuron
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.WorstNNeurons
 import java.util.*
@@ -18,10 +19,15 @@ class Evolution(
 			return
 		}
 		val losers = WorstNNeurons(neuronsForSelection)
-		builder.neuralNetwork.neurons.forEach {
-			val neuronFeedback = builder.neuralNetwork.getFeedback(it)!!
-			builder.neuronsSampler.reportFeedback(it, neuronFeedback)
-			losers.add(Pair(it, neuronFeedback))
+		builder.neuralNetwork.neurons.forEach { neuron ->
+			val neuronFeedback = builder.neuralNetwork.getFeedback(neuron)!!
+			if (neuron is MirroringNeuron){
+				builder.neuronsSampler.reportFeedback(neuron.baseNeuron, neuronFeedback)
+			}
+			else{
+				builder.neuronsSampler.reportFeedback(neuron, neuronFeedback)
+			}
+			losers.add(Pair(neuron, neuronFeedback))
 		}
 		losers.forEach {
 			val newWarningsValue = warnings.getOrDefault(it.first, 0) + 1
@@ -30,7 +36,7 @@ class Evolution(
 				if (builder.remove(it.first)) {
 					builder.addNeuron()
 				} else {
-					// warning
+					// warning for the bad neuron
 					it.first.update(it.second, builder.neuralNetwork.timeStep)
 				}
 			}

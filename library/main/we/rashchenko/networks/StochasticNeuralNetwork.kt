@@ -30,10 +30,20 @@ class StochasticNeuralNetwork : NeuralNetwork {
 		return true
 	}
 
-	override fun remove(neuron: Neuron): Boolean {
-		connections[neuron]?.forEach { it.forgetSource(neuronIds[neuron]!!) } ?: return false
+	private fun removeConnections(neuron: Neuron){
+		connections[neuron]!!.forEach {
+			backwardConnections[it]!!.remove(neuron)
+		}
+		backwardConnections[neuron]!!.forEach {
+			connections[it]!!.remove(neuron)
+		}
 		connections.remove(neuron)
 		backwardConnections.remove(neuron)
+	}
+
+	override fun remove(neuron: Neuron): Boolean {
+		connections[neuron]?.forEach { it.forgetSource(neuronIds[neuron]!!) } ?: return false
+		removeConnections(neuron)
 		neuronFeedbacks.remove(neuron)
 		neuronIds.remove(neuron)
 		inputNeurons.remove(neuron)
@@ -55,16 +65,12 @@ class StochasticNeuralNetwork : NeuralNetwork {
 	override fun tick() {
 		val currentTickNeurons = nextTickNeurons
 		nextTickNeurons = mutableSetOf()
-		currentTickNeurons.parallelStream().forEach { source ->
+		currentTickNeurons.forEach { source ->
 			connections[source]!!.forEach { receiver ->
-				if (source.active) {
-					touch(source, receiver)
-				} else {
-					throw Exception("This should never happen")
-				}
+				touch(source, receiver)
 			}
 		}
-		currentTickNeurons.parallelStream().forEach {
+		currentTickNeurons.forEach {
 			it.update(getFeedback(it)!!, timeStep)
 			if (it.active) {
 				synchronized(setAddingLock) {

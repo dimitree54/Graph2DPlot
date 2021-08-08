@@ -11,7 +11,7 @@ class TimeController : NeuralNetworkController {
 		neurons.map { it.getAverageTime() }.toDoubleArray().let { times ->
 			val mean = StatUtils.mean(times)
 			val std = sqrt(StatUtils.variance(times))
-			return times.map { Feedback(-((it - mean) / std).clip(-1.0, 1.0)) }
+			return times.map { Feedback(-((it - mean) / (std + 0.0001)).clip(-1.0, 1.0)) }
 		}
 	}
 }

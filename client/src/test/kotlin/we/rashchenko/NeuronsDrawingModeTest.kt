@@ -8,8 +8,8 @@ internal class NeuronsDrawingModeTest {
 	@Test
 	fun next() {
 		assertTrue(NeuronsDrawingMode.ACTIVITY.next() == NeuronsDrawingMode.FEEDBACK)
-		assertTrue(NeuronsDrawingMode.FEEDBACK.next() == NeuronsDrawingMode.EXTERNAL_ONLY_FEEDBACK)
-		assertTrue(NeuronsDrawingMode.EXTERNAL_ONLY_FEEDBACK.next() == NeuronsDrawingMode.INTERNAL_ONLY_FEEDBACK)
-		assertTrue(NeuronsDrawingMode.INTERNAL_ONLY_FEEDBACK.next() == NeuronsDrawingMode.ACTIVITY)
+		assertTrue(NeuronsDrawingMode.FEEDBACK.next() == NeuronsDrawingMode.EXTERNAL_FEEDBACK)
+		assertTrue(NeuronsDrawingMode.EXTERNAL_FEEDBACK.next() == NeuronsDrawingMode.INTERNAL_FEEDBACK)
+		assertTrue(NeuronsDrawingMode.INTERNAL_FEEDBACK.next() == NeuronsDrawingMode.ACTIVITY)
 	}
 }

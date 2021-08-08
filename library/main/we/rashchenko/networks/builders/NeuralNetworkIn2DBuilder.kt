@@ -62,7 +62,7 @@ class NeuralNetworkIn2DBuilder(
 		return neuralNetwork.remove(neuronToRemove).also { removed ->
 			if (removed) {
 				val position = positions[neuronToRemove]!!
-				neuronsSampler.reportDeath(neuronToRemove)
+				neuronsSampler.reportDeath(if (neuronToRemove is MirroringNeuron) neuronToRemove.baseNeuron else neuronToRemove)
 				neuronsOnCoordinate.remove(positions[neuronToRemove])
 				positions.remove(neuronToRemove)
 				if (neuronToRemove in neuronsConnectedToActivity) {
@@ -93,8 +93,7 @@ class NeuralNetworkIn2DBuilder(
 
 	override fun addNeuron(): Neuron =
 		addNeuronWithoutConnection().also {
-			val newPosition = positionSampler.next()
-			connect(newPosition)
+			connect(positions[it]!!)
 		}
 
 	fun getPosition(neuron: Neuron): Vector2? = positions[neuron]
