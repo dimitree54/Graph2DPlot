@@ -2,7 +2,7 @@ package we.rashchenko.networks.builders
 
 import we.rashchenko.base.Activity
 import we.rashchenko.environments.Environment
-import we.rashchenko.networks.NeuralNetwork
+import we.rashchenko.networks.NeuralNetworkWithInput
 import we.rashchenko.neurons.MirroringNeuron
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.neurons.NeuronsSampler
@@ -10,7 +10,7 @@ import we.rashchenko.utils.*
 
 
 class NeuralNetworkIn2DBuilder(
-	override val neuralNetwork: NeuralNetwork,
+	override val neuralNetwork: NeuralNetworkWithInput,
 	private val neuronsSampler: NeuronsSampler
 ) : NeuralNetworkBuilder {
 	private val positionSampler: Iterator<Vector2> = RandomPositionSampler()
@@ -37,7 +37,7 @@ class NeuralNetworkIn2DBuilder(
 			.forEach { (activity, position) ->
 				val id = randomIds.next()
 				val neuron = MirroringNeuron(activity, neuronsSampler.next(id))
-				neuralNetwork.add(neuron)
+				neuralNetwork.addInputNeuron(neuron)
 				positions[neuron] = position
 				neuronsOnCoordinate[position] = neuron
 				ids[neuron] = id
