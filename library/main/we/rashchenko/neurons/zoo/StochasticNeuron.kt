@@ -6,14 +6,10 @@ import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.clip
 import java.util.*
 
-open class StochasticNeuron : Neuron {
+open class StochasticNeuron(private val initWeight: Double, private val lr: Double) : Neuron {
 	private val random = Random()
 	private val weights = mutableMapOf<Int, Double>()
 	private val feedbacks = mutableMapOf<Int, Feedback>()
-
-	private fun initializeNewWeight(): Double {
-		return 0.1
-	}
 
 	private var internalActive: Boolean = false
 	override val active: Boolean
@@ -22,7 +18,7 @@ open class StochasticNeuron : Neuron {
 	private var activatedOnTimeStep = Long.MIN_VALUE
 	private var activatedOnTouchFrom: Int? = null
 	override fun touch(sourceId: Int, timeStep: Long): Boolean {
-		if (random.nextDouble() < weights.getOrPut(sourceId, ::initializeNewWeight)) {
+		if (random.nextDouble() < weights.getOrPut(sourceId) { initWeight }) {
 			internalActive = true
 			activatedOnTimeStep = timeStep
 			activatedOnTouchFrom = sourceId
@@ -41,7 +37,7 @@ open class StochasticNeuron : Neuron {
 	override fun update(feedback: Feedback, timeStep: Long) {
 		activatedOnTouchFrom?.let {
 			feedbacks[it] = feedback
-			weights[it] = weights[it]?.plus(+0.01 * feedback.value)?.clip(0.01, 0.99) ?: initializeNewWeight()
+			weights[it] = weights[it]?.plus(lr * feedback.value)?.clip(0.01, 0.99) ?: initWeight
 		}
 		if (timeStep != activatedOnTimeStep) {
 			internalActive = false
@@ -52,11 +48,14 @@ open class StochasticNeuron : Neuron {
 
 
 class StochasticNeuronSampler : NeuronsSampler {
+	private val random = Random()
 	override val name: String = "StochasticNeuron"
-	override fun next(): Neuron {
-		return StochasticNeuron()
+	override fun next(id: Int): Neuron {
+		val randomInitWeight = random.nextDouble()
+		val randomLr = random.nextDouble() / 5 - 0.1
+		return StochasticNeuron(randomInitWeight, randomLr)
 	}
 
-	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {}
-	override fun reportDeath(neuron: Neuron) {}
+	override fun reportFeedback(id: Int, feedback: Feedback) {}
+	override fun reportDeath(id: Int) {}
 }
