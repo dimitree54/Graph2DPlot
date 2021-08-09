@@ -1,13 +1,13 @@
 package we.rashchenko.networks
 
-import we.rashchenko.neurons.MirroringNeuron
+import we.rashchenko.neurons.InputNeuron
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.*
 
-class StochasticNeuralNetwork : NeuralNetwork {
+class StochasticNeuralNetwork : NeuralNetworkWithInput {
 	private val neuronIds = mutableMapOf<Neuron, Int>()
 	override val neurons: Collection<Neuron> = neuronIds.keys
-	override val inputNeurons = mutableSetOf<MirroringNeuron>()
+	override val inputNeurons = mutableSetOf<InputNeuron>()
 
 	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
 	private val backwardConnections = mutableMapOf<Neuron, MutableList<Neuron>>()
@@ -20,9 +20,6 @@ class StochasticNeuralNetwork : NeuralNetwork {
 		if (neuron in neurons) {
 			return false
 		}
-		if (neuron is MirroringNeuron) {
-			inputNeurons.add(neuron)
-		}
 		neuronIds[neuron] = randomIds.next()
 		connections[neuron] = mutableListOf()
 		backwardConnections[neuron] = mutableListOf()
@@ -30,7 +27,15 @@ class StochasticNeuralNetwork : NeuralNetwork {
 		return true
 	}
 
-	private fun removeConnections(neuron: Neuron){
+	override fun addInputNeuron(neuron: InputNeuron): Boolean {
+		return add(neuron).also { added ->
+			if (added) {
+				inputNeurons.add(neuron)
+			}
+		}
+	}
+
+	private fun removeConnections(neuron: Neuron) {
 		connections[neuron]!!.forEach {
 			backwardConnections[it]!!.remove(neuron)
 		}
@@ -70,6 +75,7 @@ class StochasticNeuralNetwork : NeuralNetwork {
 				touch(source, receiver)
 			}
 		}
+		currentTickNeurons.addAll(inputNeurons)  // we update inputNeurons even if it is not active.
 		currentTickNeurons.forEach {
 			it.update(getFeedback(it)!!, timeStep)
 			if (it.active) {
@@ -85,13 +91,19 @@ class StochasticNeuralNetwork : NeuralNetwork {
 	override var timeStep: Long = 0
 		private set
 
-	override fun getFeedback(neuron: Neuron): Feedback? = neuronFeedbacks[neuron]?.getFeedback()
+	override fun getFeedback(neuron: Neuron): Feedback? {
+		if (neuron in inputNeurons) {
+			return (neuron as InputNeuron).getInternalFeedback()
+		}
+		return neuronFeedbacks[neuron]?.getFeedback()
+	}
 
 	private fun touch(source: Neuron, receiver: Neuron) {
 		synchronized(receiver) {
 			val sourceNeuronId = neuronIds[source]!!
-			if (receiver !in nextTickNeurons) {
-				if (receiver.touch(sourceNeuronId, timeStep)) {
+			val isReceiverInput = receiver in inputNeurons
+			if (receiver !in nextTickNeurons || isReceiverInput) {
+				if (receiver.touch(sourceNeuronId, timeStep) || isReceiverInput) {
 					val newUpdate = receiver.getFeedback(sourceNeuronId)
 					synchronized(setAddingLock) {
 						neuronFeedbacks[source]!!.update(newUpdate)
