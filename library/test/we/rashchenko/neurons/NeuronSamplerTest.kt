@@ -33,19 +33,20 @@ internal abstract class NeuronSamplerTest {
 		measureTimeMillis {
 			// imitating init
 			repeat(numNeurons) {
-				neurons.add(sampler.next())
+				neurons.add(sampler.next(it))
 			}
 			// imitating work
 			repeat(numSamplerTicks) {
-				sampler.reportFeedback(neurons[r.nextInt(neurons.size)], Feedback(r.nextDouble() * 2 - 1))
+				val id = r.nextInt(neurons.size)
+				sampler.reportFeedback(id, Feedback(r.nextDouble() * 2 - 1))
 
 				val i = r.nextInt(neurons.size)
-				sampler.reportDeath(neurons[i])
+				sampler.reportDeath(id)
 				neurons.removeAt(i)
-				neurons.add(sampler.next())
+				neurons.add(sampler.next(id))
 			}
-			neuronToTest = sampler.next()  // neuron from the middle of sequence
-			neurons.forEach { sampler.reportDeath(it) }
+			neuronToTest = sampler.next(-1)  // neuron from the middle of sequence
+			neurons.forEachIndexed { i, _ -> sampler.reportDeath(i) }
 		}.also { assertTrue(it < timeLimitMillisForSampler) }
 
 		val sizeAfter = GraphLayout.parseInstance(sampler).totalSize()
@@ -65,13 +66,13 @@ internal abstract class NeuronSamplerTest {
 			repeat(numNeuronTicks) {
 				if (r.nextDouble() < 0.1) {
 					val active = neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
-					if (active){
+					if (active) {
 						assertTrue(neuron.active)
 					}
 				}
 				if (r.nextDouble() < 0.1) {
 					val active = neuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
-					if (active){
+					if (active) {
 						assertTrue(neuron.active)
 					}
 				}
@@ -113,13 +114,13 @@ internal abstract class NeuronSamplerTest {
 			}
 			if (r.nextDouble() < 0.1) {
 				val active = mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
-				if (active){
+				if (active) {
 					assertTrue(neuron.active)
 				}
 			}
 			if (r.nextDouble() < 0.1) {
 				val active = mirroringNeuron.touch(fakeNeighboursIds[r.nextInt(fakeNeighboursIds.size)], timeStep)
-				if (active){
+				if (active) {
 					assertTrue(neuron.active)
 				}
 			}

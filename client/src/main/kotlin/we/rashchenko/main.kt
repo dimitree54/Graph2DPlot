@@ -11,12 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.*
-import we.rashchenko.environments.Environment
 import we.rashchenko.environments.SimpleEnvironment
-import we.rashchenko.networks.ControlledNeuralNetwork
-import we.rashchenko.networks.Evolution
-import we.rashchenko.networks.NeuralNetwork
-import we.rashchenko.networks.StochasticNeuralNetwork
+import we.rashchenko.networks.*
 import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
@@ -31,8 +27,9 @@ import we.rashchenko.utils.Vector2
 
 fun main() {
 	val environment = SimpleEnvironment(100)
+	val nnWithInput = StochasticNeuralNetwork()
 	val controlledNN = ControlledNeuralNetwork(
-		StochasticNeuralNetwork(),
+		nnWithInput,
 		ComplexController(
 			TimeController(), ActivityController()
 		),
@@ -81,14 +78,14 @@ fun main() {
 		val info = object {
 			val loss = remember { mutableStateOf(0.0) }
 			val ticksPerSec = remember { mutableStateOf(0.0) }
-			val managerStats = remember { mutableStateOf("")}
+			val managerStats = remember { mutableStateOf("") }
 
 			private var lastTimeStep = 0.0
 			private var lastTimeMS = timeNowMillis().toDouble()
 			private var lossAggregator = ExponentialMovingAverage(0.0)
 			private var tpsAggregator = ExponentialMovingAverage(0.0)
-			fun update(nn: NeuralNetwork, manager: NeuronsManager) {
-				lossAggregator.update(nn.inputNeurons.sumOf { it.getMismatch() })
+			fun update(nn: NeuralNetworkWithInput, manager: NeuronsManager) {
+				lossAggregator.update(nn.inputNeurons.sumOf { it.getInternalFeedback().value })
 				loss.value = lossAggregator.value
 				val currentTime = timeNowMillis().toDouble()
 				tpsAggregator.update(1000 * (nn.timeStep - lastTimeStep) / (currentTime - lastTimeMS + 1))
@@ -119,25 +116,19 @@ fun main() {
 			"Loss: ${"%.${2}f".format(info.loss.value)}"
 		)
 
-		fun CoroutineScope.runNNThread(
-			environment: Environment,
-			nn: ControlledNeuralNetwork,
-			builder: NeuralNetworkIn2DBuilder,
-			evolution: Evolution,
-			visualDelay: Long = 100
-		) {
+		fun CoroutineScope.runNNThread(visualDelay: Long = 100) {
 			launch(context = Dispatchers.Default) {
 				println("Launching NN thread")
 				delay(1000)
 				while (true) {
 					if (programState.nnRunning.value) {
-						nn.tick()
+						controlledNN.tick()
 						environment.tick()
 						if (programState.visualMode.value) {
-							nnMutableState.update(nn, builder)
+							nnMutableState.update(controlledNN, builder)
 							delay(visualDelay)
 						}
-						info.update(nn, neuronsManager)
+						info.update(nnWithInput, neuronsManager)
 						evolution.step()
 					} else {
 						delay(1000)
@@ -146,9 +137,9 @@ fun main() {
 			}
 		}
 
-		LaunchedEffect(true){
+		LaunchedEffect(true) {
 			nnMutableState.update(controlledNN, builder)
-			runNNThread(environment, controlledNN, builder, evolution)
+			runNNThread()
 		}
 
 		if (programState.visualMode.value) {
@@ -169,6 +160,9 @@ fun main() {
 			if (programState.visualMode.value) {
 				Button(onClick = {
 					programState.neuronsMode.value = programState.neuronsMode.value.next()
+					if (!programState.nnRunning.value) {
+						nnMutableState.update(controlledNN, builder)
+					}
 				}) { Text(programState.neuronsMode.value.name) }
 			} else {
 				Text(info.managerStats.value)

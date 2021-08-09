@@ -8,7 +8,7 @@ import java.util.*
 
 class NeuronsManager : NeuronsSampler {
 	override val name: String = "manager"
-	private val neuronSamplerMap = mutableMapOf<Neuron, NeuronsSampler>()
+	private val neuronSamplerMap = mutableMapOf<Int, NeuronsSampler>()
 	private val samplersScore = mutableMapOf<NeuronsSampler, ExponentialMovingAverage>()
 	private val probabilityRanges = mutableMapOf<NeuronsSampler, ClosedFloatingPointRange<Double>>()
 	private val random = Random()
@@ -35,28 +35,28 @@ class NeuronsManager : NeuronsSampler {
 		}
 	}
 
-	override fun next(): Neuron {
+	override fun next(id: Int): Neuron {
 		random.nextDouble().let { randomValue ->
 			probabilityRanges.forEach { (sampler, probabilityRange) ->
 				if (randomValue in probabilityRange) {
-					return sampler.next().also { neuronSamplerMap[it] = sampler }
+					return sampler.next(id).also { neuronSamplerMap[id] = sampler }
 				}
 			}
 		}
 		throw Exception("no neuron samplers added to manager")
 	}
 
-	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {
-		val sampler = neuronSamplerMap[neuron] ?: throw IllegalArgumentException("Unknown neuron")
-		sampler.reportFeedback(neuron, feedback)
+	override fun reportFeedback(id: Int, feedback: Feedback) {
+		val sampler = neuronSamplerMap[id] ?: throw IllegalArgumentException("Unknown neuron")
+		sampler.reportFeedback(id, feedback)
 		samplersScore[sampler]?.update(feedback) ?: throw Exception("Invalid manager state")
 		updateRanges()
 	}
 
-	override fun reportDeath(neuron: Neuron) {
-		val sampler = neuronSamplerMap[neuron] ?: throw IllegalArgumentException("Unknown neuron")
-		sampler.reportDeath(neuron)
-		neuronSamplerMap.remove(neuron)
+	override fun reportDeath(id: Int) {
+		val sampler = neuronSamplerMap[id] ?: throw IllegalArgumentException("Unknown neuron")
+		sampler.reportDeath(id)
+		neuronSamplerMap.remove(id)
 	}
 
 	fun getSummary(): String {

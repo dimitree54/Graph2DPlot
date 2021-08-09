@@ -25,7 +25,7 @@ internal class NeuronsManagerTest {
 	fun nextIllegal() {
 		val neuronsManager = NeuronsManager()
 		assertThrows<Exception> {
-			neuronsManager.next()
+			neuronsManager.next(0)
 		}
 	}
 
@@ -36,17 +36,17 @@ internal class NeuronsManagerTest {
 			add(HebbianNeuronSampler())
 		}
 		repeat(10000) {
-			val neuron = neuronsManager.next()
+			val neuron = neuronsManager.next(it)
 			if (neuron is StochasticNeuron) {
-				neuronsManager.reportFeedback(neuron, Feedback.VERY_POSITIVE)
+				neuronsManager.reportFeedback(it, Feedback.VERY_POSITIVE)
 			} else {
-				neuronsManager.reportFeedback(neuron, Feedback.VERY_NEGATIVE)
+				neuronsManager.reportFeedback(it, Feedback.VERY_NEGATIVE)
 			}
 		}
 		var numStochastic = 0
 		var numHebbian = 0
 		repeat(10000) {
-			val neuron = neuronsManager.next()
+			val neuron = neuronsManager.next(-it-1)
 			if (neuron is StochasticNeuron) {
 				numStochastic++
 			} else {
@@ -66,9 +66,9 @@ internal class NeuronsManagerTest {
 			add(HebbianHappyNeuronSampler())
 		}
 		assertThrows<IllegalArgumentException> {
-			neuronsManager.reportFeedback(StochasticNeuron(), Feedback.VERY_NEGATIVE)
+			neuronsManager.reportFeedback(-1, Feedback.VERY_NEGATIVE)
 		}
-		neuronsManager.next().also { neuronsManager.reportFeedback(it, Feedback.VERY_NEGATIVE) }
+		neuronsManager.next(1).also { neuronsManager.reportFeedback(1, Feedback.VERY_NEGATIVE) }
 	}
 
 	@Test
@@ -80,9 +80,9 @@ internal class NeuronsManagerTest {
 			add(HebbianHappyNeuronSampler())
 		}
 		assertThrows<IllegalArgumentException> {
-			neuronsManager.reportDeath(StochasticNeuron())
+			neuronsManager.reportDeath(-1)
 		}
-		neuronsManager.next().also { neuronsManager.reportDeath(it) }
+		neuronsManager.next(1).also { neuronsManager.reportDeath(1) }
 	}
 
 	@Test
@@ -93,11 +93,11 @@ internal class NeuronsManagerTest {
 		}
 		println(neuronsManager.getSummary())
 		repeat(10000) {
-			val neuron = neuronsManager.next()
+			val neuron = neuronsManager.next(it)
 			if (neuron is StochasticNeuron) {
-				neuronsManager.reportFeedback(neuron, Feedback.VERY_POSITIVE)
+				neuronsManager.reportFeedback(it, Feedback.VERY_POSITIVE)
 			} else {
-				neuronsManager.reportFeedback(neuron, Feedback.VERY_NEGATIVE)
+				neuronsManager.reportFeedback(it, Feedback.VERY_NEGATIVE)
 			}
 		}
 		println(neuronsManager.getSummary())
