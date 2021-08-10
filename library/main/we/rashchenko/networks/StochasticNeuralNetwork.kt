@@ -18,17 +18,15 @@ class StochasticNeuralNetwork : NeuralNetworkWithInput {
 
 	override fun add(neuron: Neuron): Int {
 		val id = randomIds.next()
-		println("Neuron $id added")
 		neuronsWithID[id] = neuron
 		connections[id] = mutableListOf()
 		backwardConnections[id] = mutableListOf()
-		neuronFeedbacks[id] = ExponentialMovingAverage(0.0)
+		neuronFeedbacks[id] = ExponentialMovingAverage(0.0, 0.9)
 		return id
 	}
 
 	override fun addInputNeuron(neuron: InputNeuron): Int {
 		return add(neuron).also { id ->
-			println("Neuron input $id added")
 			inputNeuronIDs.add(id)
 		}
 	}
@@ -46,7 +44,6 @@ class StochasticNeuralNetwork : NeuralNetworkWithInput {
 
 	override fun remove(neuronID: Int): Boolean {
 		connections[neuronID]?.forEach { neuronsWithID[it]!!.forgetSource(neuronID) } ?: return false
-		println("Neuron input $neuronID removed")
 		removeConnections(neuronID)
 		neuronFeedbacks.remove(neuronID)
 		inputNeuronIDs.remove(neuronID)

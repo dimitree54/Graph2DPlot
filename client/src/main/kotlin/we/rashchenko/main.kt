@@ -45,8 +45,8 @@ fun main() {
 	val builder = NeuralNetworkIn2DBuilder(
 		controlledNN,
 		neuronsManager
-	).apply { initialise(10000, environment) }
-	val evolution = Evolution(builder, 100, 10, 0.01)
+	).apply { initialise(1000, environment) }
+	val evolution = Evolution(builder, 100, 10, 0.1)
 
 	Window {
 		val programState = object {
