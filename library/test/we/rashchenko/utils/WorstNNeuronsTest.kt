@@ -10,24 +10,24 @@ import we.rashchenko.neurons.zoo.HebbianNeuron
 internal class WorstNNeuronsTest {
 	@Test
 	fun testWorstNNeurons() {
-		val worstNNeurons = WorstNNeurons(3)
+		val worstNNeurons = WorstNNeuronIDs(3)
 		worstNNeurons.addAll(
 			listOf(
-				HebbianAngryNeuron() to Feedback.VERY_NEGATIVE,
-				HebbianNeuron() to Feedback.NEUTRAL,
-				HebbianHappyNeuron() to Feedback.VERY_POSITIVE
+				0 to Feedback.VERY_NEGATIVE,
+				1 to Feedback.NEUTRAL,
+				2 to Feedback.VERY_POSITIVE
 			)
 		)
 		assertTrue(worstNNeurons.size == 3)
-		worstNNeurons.add(HebbianNeuron() to Feedback.NEUTRAL)
+		worstNNeurons.add(3 to Feedback.NEUTRAL)
 		assertTrue(worstNNeurons.size == 3)
 
-		(HebbianNeuron() to Feedback.VERY_POSITIVE).let {
+		(4 to Feedback.VERY_POSITIVE).let {
 			worstNNeurons.add(it)
 			assertFalse(worstNNeurons.contains(it))
 		}
 
-		(HebbianNeuron() to Feedback.VERY_NEGATIVE).let {
+		(5 to Feedback.VERY_NEGATIVE).let {
 			worstNNeurons.add(it)
 			assertTrue(worstNNeurons.contains(it))
 		}
