@@ -57,7 +57,7 @@ class ControlledNeuralNetwork(
 		if (timeStep % updateControllerFeedbackPeriod == 0L) {
 			val (neuronIDsList, controlledNeuronsList) = controlledNeuronsWithID.toList().unzip()
 			val feedbacks = controller.getControllerFeedbacks(controlledNeuronsList, timeStep)
-			neuronIDsList.indices.forEachIndexed { i, id ->
+			neuronIDsList.forEachIndexed { i, id ->
 				controllerFeedbacks[id] = feedbacks[i]
 			}
 		}

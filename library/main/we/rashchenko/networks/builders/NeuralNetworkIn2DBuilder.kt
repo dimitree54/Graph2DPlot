@@ -32,6 +32,7 @@ class NeuralNetworkIn2DBuilder(
 			val (activity, position) = unattachedActivitiesWithPosition.removeLast()
 			neuralNetwork.addInputNeuron(MirroringNeuron(activity, neuron)).also { neuronID ->
 				addNeuronWithoutConnection(neuronID, builderID, position)
+				neuronIDsConnectedToActivity[neuronID] = activity
 			}
 		}
 
