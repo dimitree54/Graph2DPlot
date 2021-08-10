@@ -43,15 +43,17 @@ class ControlledNeuralNetwork(
 	}
 
 	private val random = Random()
+	private var control = false
 	override fun tick() {
-		if (random.nextDouble() < auditProbability) {
-			// that way of control does not control forgetSource (which is very hard to control)
-			controlledNeuronsWithID.values.forEach { it.control = true }
-			baseNeuralNetwork.tick()
+		if (control){
+			control = false
 			controlledNeuronsWithID.values.forEach { it.control = false }
-		} else {
-			baseNeuralNetwork.tick()
 		}
+		if (random.nextDouble() < auditProbability) {
+			control = true
+			controlledNeuronsWithID.values.forEach { it.control = true }
+		}
+		baseNeuralNetwork.tick()
 		if (timeStep % updateControllerFeedbackPeriod == 0L) {
 			val (neuronIDsList, controlledNeuronsList) = controlledNeuronsWithID.toList().unzip()
 			val feedbacks = controller.getControllerFeedbacks(controlledNeuronsList, timeStep)
