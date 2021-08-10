@@ -1,6 +1,5 @@
 package we.rashchenko.utils
 
-import we.rashchenko.neurons.Neuron
 import java.util.*
 
 
@@ -69,16 +68,16 @@ open class BestN<T>(private val n: Int, comparator: Comparator<T>) : AlwaysSorte
 	}
 }
 
-class NeuronsWithFeedbackComparator : Comparator<Pair<Neuron, Feedback>> {
-	override fun compare(o1: Pair<Neuron, Feedback>, o2: Pair<Neuron, Feedback>): Int =
+class NeuronsWithFeedbackComparator : Comparator<Pair<Int, Feedback>> {
+	override fun compare(o1: Pair<Int, Feedback>, o2: Pair<Int, Feedback>): Int =
 		o1.second.compareTo(o2.second)
 }
 
-class InvertedNeuronsWithFeedbackComparator : Comparator<Pair<Neuron, Feedback>> {
+class InvertedNeuronsWithFeedbackComparator : Comparator<Pair<Int, Feedback>> {
 	private val baseComparator = NeuronsWithFeedbackComparator()
-	override fun compare(o1: Pair<Neuron, Feedback>, o2: Pair<Neuron, Feedback>): Int {
+	override fun compare(o1: Pair<Int, Feedback>, o2: Pair<Int, Feedback>): Int {
 		return -baseComparator.compare(o1, o2)
 	}
 }
 
-class WorstNNeurons(n: Int) : BestN<Pair<Neuron, Feedback>>(n, InvertedNeuronsWithFeedbackComparator())
+class WorstNNeuronIDs(n: Int) : BestN<Pair<Int, Feedback>>(n, InvertedNeuronsWithFeedbackComparator())

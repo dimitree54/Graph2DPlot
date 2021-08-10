@@ -15,42 +15,58 @@ class NeuralNetworkIn2DBuilder(
 ) : NeuralNetworkBuilder {
 	private val positionSampler: Iterator<Vector2> = RandomPositionSampler()
 	private val vectorsConnectionSampler = KNearestVectorsConnectionSampler(5)
-	private val neuronsOnCoordinate = mutableMapOf<Vector2, Neuron>()
-	private val positions = mutableMapOf<Neuron, Vector2>()
-	private val ids = mutableMapOf<Neuron, Int>()
-	private fun addNeuronWithoutConnection(): Neuron {
-		val id = randomIds.next()
-		return neuronsSampler.next(id).also { neuron ->
-			val position = positionSampler.next()
-			positions[neuron] = position
-			neuronsOnCoordinate[position] = neuron
-			ids[neuron] = id
-			neuralNetwork.add(neuron)
+	private val positionsWithNNIDs = mutableMapOf<Vector2, Int>()
+	private val nnIDsWithPosition = mutableMapOf<Int, Vector2>()
+	// Note that because of privacy we can not use the same ids as in NN
+	private val nnIDs2builderIDs = mutableMapOf<Int, Int>()
+
+	private val unattachedActivitiesWithPosition = mutableListOf<Pair<Activity, Vector2>>()
+	private fun addNeuronWithoutConnection(): Int {
+		val builderID = randomIds.next()
+		val neuron: Neuron = neuronsSampler.next(builderID)
+		return if (unattachedActivitiesWithPosition.isEmpty()){
+			neuralNetwork.add(neuron).also { neuronID ->
+				addNeuronWithoutConnection(neuronID, builderID, positionSampler.next())
+			}
+		} else{
+			val (activity, position) = unattachedActivitiesWithPosition.removeLast()
+			neuralNetwork.addInputNeuron(MirroringNeuron(activity, neuron)).also { neuronID ->
+				addNeuronWithoutConnection(neuronID, builderID, position)
+			}
 		}
+
 	}
 
-	private fun addNeuronsWithoutConnection(n: Int): List<Neuron> = (0 until n).map { addNeuronWithoutConnection() }
+	private fun addNeuronWithoutConnection(neuronID: Int, builderID: Int, position: Vector2){
+		positionsWithNNIDs[position] = neuronID
+		nnIDsWithPosition[neuronID] = position
+		nnIDs2builderIDs[neuronID] = builderID
+	}
 
-	private val neuronsConnectedToActivity = mutableMapOf<Neuron, Activity>()
-	private fun addEnvironmentWithoutConnection(environment: Environment) {
+	private fun addNeuronsWithoutConnection(n: Int): List<Int> = (0 until n).map { addNeuronWithoutConnection() }
+
+	private val neuronIDsConnectedToActivity = mutableMapOf<Int, Activity>()
+	private fun addEnvironmentWithoutConnection(environment: Environment): List<Int> {
+		val neuronIDs = mutableListOf<Int>()
 		environment.activities.associateWith { positionSampler.next() }
 			.forEach { (activity, position) ->
-				val id = randomIds.next()
-				val neuron = MirroringNeuron(activity, neuronsSampler.next(id))
-				neuralNetwork.addInputNeuron(neuron)
-				positions[neuron] = position
-				neuronsOnCoordinate[position] = neuron
-				ids[neuron] = id
-				neuronsConnectedToActivity[neuron] = activity
+				val builderID = randomIds.next()
+				val neuron = MirroringNeuron(activity, neuronsSampler.next(builderID))
+				val nnID = neuralNetwork.addInputNeuron(neuron)
+				addNeuronWithoutConnection(nnID, builderID, position)
+
+				neuronIDsConnectedToActivity[nnID] = activity
+				neuronIDs.add(nnID)
 			}
+		return neuronIDs
 	}
 
 	private fun connectAll() {
-		val connections = vectorsConnectionSampler.connectAll(positions.values)
+		val connections = vectorsConnectionSampler.connectAll(positionsWithNNIDs.keys)
 		connections.forEach { (fromPosition, toPositions) ->
 			toPositions.forEach { toPosition ->
 				neuralNetwork.addConnection(
-					neuronsOnCoordinate[fromPosition]!!, neuronsOnCoordinate[toPosition]!!
+					positionsWithNNIDs[fromPosition]!!, positionsWithNNIDs[toPosition]!!
 				)
 			}
 		}
@@ -62,50 +78,45 @@ class NeuralNetworkIn2DBuilder(
 		connectAll()
 	}
 
-	override fun remove(neuronToRemove: Neuron): Boolean {
-		return neuralNetwork.remove(neuronToRemove).also { removed ->
+	override fun remove(neuronID: Int): Boolean {
+		return neuralNetwork.remove(neuronID).also { removed ->
 			if (removed) {
-				val position = positions[neuronToRemove]!!
-				neuronsSampler.reportDeath(ids[neuronToRemove]!!)
-				neuronsOnCoordinate.remove(positions[neuronToRemove])
-				positions.remove(neuronToRemove)
-				if (neuronToRemove in neuronsConnectedToActivity) {
-					val id = randomIds.next()
-					val activity = neuronsConnectedToActivity[neuronToRemove]!!
-					val replacementNeuron = MirroringNeuron(activity, neuronsSampler.next(id))
-					neuronsConnectedToActivity.remove(neuronToRemove)
-					neuronsConnectedToActivity[replacementNeuron] = activity
-					positions[replacementNeuron] = position
-					neuronsOnCoordinate[position] = replacementNeuron
-					neuralNetwork.add(replacementNeuron)
-					ids[replacementNeuron] = id
-					connect(position)
-					return false
+				val builderID = nnIDs2builderIDs[neuronID]!!
+				val position = nnIDsWithPosition[neuronID]!!
+				if (neuronID in neuronIDsConnectedToActivity){
+					unattachedActivitiesWithPosition.add(
+						neuronIDsConnectedToActivity[neuronID]!! to nnIDsWithPosition[neuronID]!!)
+					neuronIDsConnectedToActivity.remove(neuronID)
 				}
+
+				neuronsSampler.reportDeath(builderID)
+				positionsWithNNIDs.remove(position)
+				nnIDsWithPosition.remove(neuronID)
+				nnIDs2builderIDs.remove(neuronID)
 			}
 		}
 	}
 
 	private fun connect(position: Vector2) {
-		val newConnections = vectorsConnectionSampler.connectNew(position, positions.values)
+		val newConnections = vectorsConnectionSampler.connectNew(position, nnIDsWithPosition.values)
 		newConnections.forEach { (fromPosition, toPositions) ->
 			toPositions.forEach { toPosition ->
 				neuralNetwork.addConnection(
-					neuronsOnCoordinate[fromPosition]!!, neuronsOnCoordinate[toPosition]!!
+					positionsWithNNIDs[fromPosition]!!, positionsWithNNIDs[toPosition]!!
 				)
 			}
 		}
 	}
 
-	override fun addNeuron(): Neuron =
-		addNeuronWithoutConnection().also {
-			connect(positions[it]!!)
+	override fun addNeuron(): Int =
+		addNeuronWithoutConnection().also { neuronID ->
+			connect(nnIDsWithPosition[neuronID]!!)
 		}
 
-	fun getPosition(neuron: Neuron): Vector2? = positions[neuron]
+	fun getPosition(neuronID: Int): Vector2? = nnIDsWithPosition[neuronID]
 
-	override fun reportFeedback(neuron: Neuron, feedback: Feedback) {
-		ids[neuron]?.let { id ->
+	override fun reportFeedback(neuronID: Int, feedback: Feedback) {
+		nnIDs2builderIDs[neuronID]?.let { id ->
 			neuronsSampler.reportFeedback(id, feedback)
 		}
 	}

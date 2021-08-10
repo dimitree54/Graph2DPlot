@@ -2,38 +2,42 @@ package we.rashchenko.networks
 
 import we.rashchenko.networks.controllers.NeuralNetworkController
 import we.rashchenko.neurons.ControlledNeuron
+import we.rashchenko.neurons.InputNeuron
 import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.Feedback
 import java.util.*
 
 class ControlledNeuralNetwork(
-	private val baseNeuralNetwork: NeuralNetwork,
+	private val baseNeuralNetwork: NeuralNetworkWithInput,
 	private val controller: NeuralNetworkController,
 	private val auditProbability: Double,
 	private val updateControllerFeedbackPeriod: Long,
 	private val controllerFeedbackWeight: Double
-) : NeuralNetwork by baseNeuralNetwork {
-	private val controlledNeurons = mutableMapOf(
-		*baseNeuralNetwork.neurons.map { it to ControlledNeuron(it, timeStep) }.toTypedArray()
-	)
-	private val controllerFeedbacks = mutableMapOf(
-		*baseNeuralNetwork.neurons.map { it to Feedback.NEUTRAL }.toTypedArray()
-	)
+) : NeuralNetworkWithInput by baseNeuralNetwork {
+	private val controlledNeuronsWithID = mutableMapOf<Int, ControlledNeuron>()
+	private val controllerFeedbacks = mutableMapOf<Int, Feedback>()
 
-	override fun add(neuron: Neuron): Boolean {
-		return baseNeuralNetwork.add(neuron).also { added ->
-			if (added) {
-				controlledNeurons[neuron] = ControlledNeuron(neuron, timeStep)
-				controllerFeedbacks[neuron] = Feedback.NEUTRAL
+	override fun add(neuron: Neuron): Int {
+		return ControlledNeuron(neuron, timeStep).let {
+			baseNeuralNetwork.add(it).also { id ->
+				controlledNeuronsWithID[id] = it
+				controllerFeedbacks[id] = Feedback.NEUTRAL
 			}
 		}
 	}
 
-	override fun remove(neuron: Neuron): Boolean {
-		return baseNeuralNetwork.remove(neuron).also { removed ->
+	override fun addInputNeuron(neuron: InputNeuron): Int {
+		// NOTE: we do not control input neurons as they anyway ignore external feedback, just specifying default
+		return baseNeuralNetwork.addInputNeuron(neuron).also { neuronID ->
+			controllerFeedbacks[neuronID] = Feedback.NEUTRAL
+		}
+	}
+
+	override fun remove(neuronID: Int): Boolean {
+		return baseNeuralNetwork.remove(neuronID).also { removed ->
 			if (removed) {
-				controlledNeurons.remove(neuron)
-				controllerFeedbacks.remove(neuron)
+				controlledNeuronsWithID.remove(neuronID)
+				controllerFeedbacks.remove(neuronID)
 			}
 		}
 	}
@@ -41,35 +45,33 @@ class ControlledNeuralNetwork(
 	private val random = Random()
 	override fun tick() {
 		if (random.nextDouble() < auditProbability) {
-			controlledNeurons.values.forEach { it.control = true }
+			// that way of control does not control forgetSource (which is very hard to control)
+			controlledNeuronsWithID.values.forEach { it.control = true }
 			baseNeuralNetwork.tick()
-			controlledNeurons.values.forEach { it.control = false }
+			controlledNeuronsWithID.values.forEach { it.control = false }
 		} else {
 			baseNeuralNetwork.tick()
 		}
 		if (timeStep % updateControllerFeedbackPeriod == 0L) {
-			val (neuronsList, controlledNeuronsList) = controlledNeurons.toList().unzip()
+			val (neuronIDsList, controlledNeuronsList) = controlledNeuronsWithID.toList().unzip()
 			val feedbacks = controller.getControllerFeedbacks(controlledNeuronsList, timeStep)
-			neuronsList.indices.forEach { i ->
-				controllerFeedbacks[neuronsList[i]] = feedbacks[i]
+			neuronIDsList.indices.forEachIndexed { i, id ->
+				controllerFeedbacks[id] = feedbacks[i]
 			}
 		}
 	}
 
-	override fun getFeedback(neuron: Neuron): Feedback? {
-		return baseNeuralNetwork.getFeedback(neuron)?.let {
-			Feedback(
-				it.value * (1 - controllerFeedbackWeight) +
-						controllerFeedbacks[neuron]!!.value * controllerFeedbackWeight
-			)
+	override fun getFeedback(neuronID: Int): Feedback? {
+		return getControllerFeedback(neuronID)?.let { controllerFeedback ->
+			getCollaborativeFeedback(neuronID)?.let { collaborativeFeedback ->
+				Feedback(
+					collaborativeFeedback.value * (1 - controllerFeedbackWeight) +
+							controllerFeedback.value * controllerFeedbackWeight
+				)
+			}
 		}
 	}
 
-	fun getControllerFeedback(neuron: Neuron): Feedback? {
-		return controllerFeedbacks[neuron]
-	}
-
-	fun getCollaborativeFeedback(neuron: Neuron): Feedback? {
-		return baseNeuralNetwork.getFeedback(neuron)
-	}
+	fun getControllerFeedback(neuronID: Int): Feedback? = controllerFeedbacks[neuronID]
+	fun getCollaborativeFeedback(neuronID: Int): Feedback? = baseNeuralNetwork.getFeedback(neuronID)
 }

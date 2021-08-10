@@ -23,26 +23,26 @@ enum class NeuronsDrawingMode {
 }
 
 fun NeuralNetworkIn2DBuilder.getAllPositions(scale: Vector2 = Vector2.ONES): List<Vector2> {
-	return neuralNetwork.neurons.map { getPosition(it)!!.scl(scale) }
+	return neuralNetwork.neuronIDs.map { getPosition(it)!!.scl(scale) }
 }
 
 fun NeuralNetwork.getActivePassiveColors(): List<Color> {
-	return neurons.map { if (it.active) colorActive else colorPassive }
+	return neuronIDs.map { if (getNeuron(it)!!.active) colorActive else colorPassive }
 }
 
 fun NeuralNetworkIn2DBuilder.getInputPositions(scale: Vector2 = Vector2.ONES): List<Vector2> =
-	neuralNetwork.inputNeurons.map { getPosition(it)!!.scl(scale) }
+	neuralNetwork.inputNeuronIDs.map { getPosition(it)!!.scl(scale) }
 
 fun NeuralNetwork.getNeuronFeedbackColors(): List<Color> {
-	return neurons.map { getFeedbackColor(getFeedback(it)!!) }
+	return neuronIDs.map { getFeedbackColor(getFeedback(it)!!) }
 }
 
 fun ControlledNeuralNetwork.getControllerFeedbackColors(): List<Color> {
-	return neurons.map { getFeedbackColor(getControllerFeedback(it)!!) }
+	return neuronIDs.map { getFeedbackColor(getControllerFeedback(it)!!) }
 }
 
 fun ControlledNeuralNetwork.getCollaborativeFeedbackColors(): List<Color> {
-	return neurons.map { getFeedbackColor(getCollaborativeFeedback(it)!!) }
+	return neuronIDs.map { getFeedbackColor(getCollaborativeFeedback(it)!!) }
 }
 
 fun NeuralNetworkIn2DBuilder.getConnectionsWithColor(scale: Vector2 = Vector2.ONES):

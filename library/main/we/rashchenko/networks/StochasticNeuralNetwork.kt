@@ -5,67 +5,66 @@ import we.rashchenko.neurons.Neuron
 import we.rashchenko.utils.*
 
 class StochasticNeuralNetwork : NeuralNetworkWithInput {
-	private val neuronIds = mutableMapOf<Neuron, Int>()
-	override val neurons: Collection<Neuron> = neuronIds.keys
-	override val inputNeurons = mutableSetOf<InputNeuron>()
+	private val neuronsWithID = mutableMapOf<Int, Neuron>()
+	override val neuronIDs: Collection<Int>
+		get() = neuronsWithID.keys
+	override val inputNeuronIDs = mutableSetOf<Int>()
+	private val _inputNeuronIDsBackward = mutableMapOf<Int, InputNeuron>()
 
-	override val connections = mutableMapOf<Neuron, MutableList<Neuron>>()
-	private val backwardConnections = mutableMapOf<Neuron, MutableList<Neuron>>()
+	override val connections = mutableMapOf<Int, MutableList<Int>>()
+	private val backwardConnections = mutableMapOf<Int, MutableList<Int>>()
 
-	private val neuronFeedbacks = mutableMapOf<Neuron, ExponentialMovingAverage>()
+	private val neuronFeedbacks = mutableMapOf<Int, ExponentialMovingAverage>()
 
-	override fun getNeuronId(neuron: Neuron): Int? = neuronIds[neuron]
+	override fun add(neuron: Neuron): Int {
+		val id = randomIds.next()
+		println("Neuron $id added")
+		neuronsWithID[id] = neuron
+		connections[id] = mutableListOf()
+		backwardConnections[id] = mutableListOf()
+		neuronFeedbacks[id] = ExponentialMovingAverage(0.0)
+		return id
+	}
 
-	override fun add(neuron: Neuron): Boolean {
-		if (neuron in neurons) {
+	override fun addInputNeuron(neuron: InputNeuron): Int {
+		return add(neuron).also { id ->
+			println("Neuron input $id added")
+			inputNeuronIDs.add(id)
+		}
+	}
+
+	private fun removeConnections(neuronID: Int) {
+		connections[neuronID]!!.forEach {
+			backwardConnections[it]!!.remove(neuronID)
+		}
+		backwardConnections[neuronID]!!.forEach {
+			connections[it]!!.remove(neuronID)
+		}
+		connections.remove(neuronID)
+		backwardConnections.remove(neuronID)
+	}
+
+	override fun remove(neuronID: Int): Boolean {
+		connections[neuronID]?.forEach { neuronsWithID[it]!!.forgetSource(neuronID) } ?: return false
+		println("Neuron input $neuronID removed")
+		removeConnections(neuronID)
+		neuronFeedbacks.remove(neuronID)
+		inputNeuronIDs.remove(neuronID)
+		nextTickNeurons.remove(neuronID)
+		neuronsWithID.remove(neuronID)
+		return true
+	}
+
+	override fun addConnection(fromNeuronID: Int, toNeuronID: Int): Boolean {
+		if (fromNeuronID !in neuronIDs || toNeuronID !in neuronIDs) {
 			return false
 		}
-		neuronIds[neuron] = randomIds.next()
-		connections[neuron] = mutableListOf()
-		backwardConnections[neuron] = mutableListOf()
-		neuronFeedbacks[neuron] = ExponentialMovingAverage(0.0)
+		connections[fromNeuronID]!!.add(toNeuronID)
+		backwardConnections[toNeuronID]!!.add(fromNeuronID)
 		return true
 	}
 
-	override fun addInputNeuron(neuron: InputNeuron): Boolean {
-		return add(neuron).also { added ->
-			if (added) {
-				inputNeurons.add(neuron)
-			}
-		}
-	}
-
-	private fun removeConnections(neuron: Neuron) {
-		connections[neuron]!!.forEach {
-			backwardConnections[it]!!.remove(neuron)
-		}
-		backwardConnections[neuron]!!.forEach {
-			connections[it]!!.remove(neuron)
-		}
-		connections.remove(neuron)
-		backwardConnections.remove(neuron)
-	}
-
-	override fun remove(neuron: Neuron): Boolean {
-		connections[neuron]?.forEach { it.forgetSource(neuronIds[neuron]!!) } ?: return false
-		removeConnections(neuron)
-		neuronFeedbacks.remove(neuron)
-		neuronIds.remove(neuron)
-		inputNeurons.remove(neuron)
-		nextTickNeurons.remove(neuron)
-		return true
-	}
-
-	override fun addConnection(fromNeuron: Neuron, toNeuron: Neuron): Boolean {
-		if (fromNeuron !in neurons || toNeuron !in neurons) {
-			return false
-		}
-		connections[fromNeuron]!!.add(toNeuron)
-		backwardConnections[toNeuron]!!.add(fromNeuron)
-		return true
-	}
-
-	private var nextTickNeurons = mutableSetOf<Neuron>()
+	private var nextTickNeurons = mutableSetOf<Int>()
 	private val setAddingLock = Object()
 	override fun tick() {
 		val currentTickNeurons = nextTickNeurons
@@ -75,39 +74,40 @@ class StochasticNeuralNetwork : NeuralNetworkWithInput {
 				touch(source, receiver)
 			}
 		}
-		currentTickNeurons.addAll(inputNeurons)  // we update inputNeurons even if it is not active.
-		currentTickNeurons.forEach {
-			it.update(getFeedback(it)!!, timeStep)
-			if (it.active) {
-				synchronized(setAddingLock) {
-					nextTickNeurons.add(it)
+		currentTickNeurons.addAll(inputNeuronIDs)  // we update inputNeurons even if it is not active.
+		currentTickNeurons.forEach { id ->
+			neuronsWithID[id]!!.also { neuron ->
+				neuron.update(getFeedback(id)!!, timeStep)
+				if (neuron.active) {
+					synchronized(setAddingLock) {
+						nextTickNeurons.add(id)
+					}
 				}
 			}
 		}
-		nextTickNeurons.addAll(inputNeurons.filter { it.active })
+		nextTickNeurons.addAll(inputNeuronIDs.filter { neuronsWithID[it]!!.active })
 		timeStep++
 	}
 
 	override var timeStep: Long = 0
 		private set
 
-	override fun getFeedback(neuron: Neuron): Feedback? {
-		if (neuron in inputNeurons) {
-			return (neuron as InputNeuron).getInternalFeedback()
-		}
-		return neuronFeedbacks[neuron]?.getFeedback()
+	override fun getFeedback(neuronID: Int): Feedback? {
+		return _inputNeuronIDsBackward[neuronID]?.getInternalFeedback() ?: neuronFeedbacks[neuronID]?.getFeedback()
 	}
 
-	private fun touch(source: Neuron, receiver: Neuron) {
+	override fun getNeuron(neuronID: Int): Neuron? = neuronsWithID[neuronID]
+
+	private fun touch(sourceID: Int, receiverID: Int) {
+		val receiver = neuronsWithID[receiverID]!!
 		synchronized(receiver) {
-			val sourceNeuronId = neuronIds[source]!!
-			val isReceiverInput = receiver in inputNeurons
-			if (receiver !in nextTickNeurons || isReceiverInput) {
-				if (receiver.touch(sourceNeuronId, timeStep) || isReceiverInput) {
-					val newUpdate = receiver.getFeedback(sourceNeuronId)
+			val isReceiverInput = receiverID in inputNeuronIDs
+			if (receiverID !in nextTickNeurons || isReceiverInput) {
+				if (receiver.touch(sourceID, timeStep) || isReceiverInput) {
+					val feedbackUpdate = receiver.getFeedback(sourceID)
 					synchronized(setAddingLock) {
-						neuronFeedbacks[source]!!.update(newUpdate)
-						nextTickNeurons.add(receiver)
+						neuronFeedbacks[sourceID]!!.update(feedbackUpdate)
+						nextTickNeurons.add(receiverID)
 					}
 				}
 			}

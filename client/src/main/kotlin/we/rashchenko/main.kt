@@ -17,6 +17,7 @@ import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
 import we.rashchenko.networks.controllers.TimeController
+import we.rashchenko.neurons.InputNeuron
 import we.rashchenko.neurons.NeuronsManager
 import we.rashchenko.neurons.zoo.HebbianAngryNeuronSampler
 import we.rashchenko.neurons.zoo.HebbianHappyNeuronSampler
@@ -76,17 +77,18 @@ fun main() {
 		}
 
 		val info = object {
-			val loss = remember { mutableStateOf(0.0) }
+			val score = remember { mutableStateOf(0.0) }
 			val ticksPerSec = remember { mutableStateOf(0.0) }
 			val managerStats = remember { mutableStateOf("") }
 
 			private var lastTimeStep = 0.0
 			private var lastTimeMS = timeNowMillis().toDouble()
-			private var lossAggregator = ExponentialMovingAverage(0.0)
+			private var scoreAggregator = ExponentialMovingAverage(0.0)
 			private var tpsAggregator = ExponentialMovingAverage(0.0)
 			fun update(nn: NeuralNetworkWithInput, manager: NeuronsManager) {
-				lossAggregator.update(nn.inputNeurons.sumOf { it.getInternalFeedback().value })
-				loss.value = lossAggregator.value
+				scoreAggregator.update(
+					nn.inputNeuronIDs.sumOf { (nn.getNeuron(it)!! as InputNeuron).getInternalFeedback().value })
+				score.value = scoreAggregator.value
 				val currentTime = timeNowMillis().toDouble()
 				tpsAggregator.update(1000 * (nn.timeStep - lastTimeStep) / (currentTime - lastTimeMS + 1))
 				ticksPerSec.value = tpsAggregator.value
@@ -112,8 +114,8 @@ fun main() {
 		)
 
 		@Composable
-		fun infoLoss() = Text(
-			"Loss: ${"%.${2}f".format(info.loss.value)}"
+		fun infoScore() = Text(
+			"Score: ${"%.${2}f".format(info.score.value)}"
 		)
 
 		fun CoroutineScope.runNNThread(visualDelay: Long = 100) {
@@ -154,7 +156,7 @@ fun main() {
 		}
 		Column {
 			infoTPS()
-			infoLoss()
+			infoScore()
 			runButton()
 			showButton()
 			if (programState.visualMode.value) {
