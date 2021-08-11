@@ -45,7 +45,7 @@ class ControlledNeuralNetwork(
 	private val random = Random()
 	private var control = false
 	override fun tick() {
-		if (control){
+		if (control) {
 			control = false
 			controlledNeuronsWithID.values.forEach { it.control = false }
 		}

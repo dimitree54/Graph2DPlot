@@ -46,7 +46,7 @@ internal class NeuronsManagerTest {
 		var numStochastic = 0
 		var numHebbian = 0
 		repeat(10000) {
-			val neuron = neuronsManager.next(-it-1)
+			val neuron = neuronsManager.next(-it - 1)
 			if (neuron is StochasticNeuron) {
 				numStochastic++
 			} else {

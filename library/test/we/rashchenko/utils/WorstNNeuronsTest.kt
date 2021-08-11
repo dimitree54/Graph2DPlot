@@ -3,9 +3,6 @@ package we.rashchenko.utils
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import we.rashchenko.neurons.zoo.HebbianAngryNeuron
-import we.rashchenko.neurons.zoo.HebbianHappyNeuron
-import we.rashchenko.neurons.zoo.HebbianNeuron
 
 internal class WorstNNeuronsTest {
 	@Test

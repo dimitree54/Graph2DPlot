@@ -17,6 +17,7 @@ class NeuralNetworkIn2DBuilder(
 	private val vectorsConnectionSampler = KNearestVectorsConnectionSampler(5)
 	private val positionsWithNNIDs = mutableMapOf<Vector2, Int>()
 	private val nnIDsWithPosition = mutableMapOf<Int, Vector2>()
+
 	// Note that because of privacy we can not use the same ids as in NN
 	private val nnIDs2builderIDs = mutableMapOf<Int, Int>()
 
@@ -24,11 +25,11 @@ class NeuralNetworkIn2DBuilder(
 	private fun addNeuronWithoutConnection(): Int {
 		val builderID = randomIds.next()
 		val neuron: Neuron = neuronsSampler.next(builderID)
-		return if (unattachedActivitiesWithPosition.isEmpty()){
+		return if (unattachedActivitiesWithPosition.isEmpty()) {
 			neuralNetwork.add(neuron).also { neuronID ->
 				addNeuronWithoutConnection(neuronID, builderID, positionSampler.next())
 			}
-		} else{
+		} else {
 			val (activity, position) = unattachedActivitiesWithPosition.removeLast()
 			neuralNetwork.addInputNeuron(MirroringNeuron(activity, neuron)).also { neuronID ->
 				addNeuronWithoutConnection(neuronID, builderID, position)
@@ -38,7 +39,7 @@ class NeuralNetworkIn2DBuilder(
 
 	}
 
-	private fun addNeuronWithoutConnection(neuronID: Int, builderID: Int, position: Vector2){
+	private fun addNeuronWithoutConnection(neuronID: Int, builderID: Int, position: Vector2) {
 		positionsWithNNIDs[position] = neuronID
 		nnIDsWithPosition[neuronID] = position
 		nnIDs2builderIDs[neuronID] = builderID
@@ -84,9 +85,10 @@ class NeuralNetworkIn2DBuilder(
 			if (removed) {
 				val builderID = nnIDs2builderIDs[neuronID]!!
 				val position = nnIDsWithPosition[neuronID]!!
-				if (neuronID in neuronIDsConnectedToActivity){
+				if (neuronID in neuronIDsConnectedToActivity) {
 					unattachedActivitiesWithPosition.add(
-						neuronIDsConnectedToActivity[neuronID]!! to nnIDsWithPosition[neuronID]!!)
+						neuronIDsConnectedToActivity[neuronID]!! to nnIDsWithPosition[neuronID]!!
+					)
 					neuronIDsConnectedToActivity.remove(neuronID)
 				}
 

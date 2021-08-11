@@ -1,18 +1,27 @@
 package we.rashchenko
 
-import androidx.compose.desktop.Window
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.text.timeNowMillis
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import we.rashchenko.environments.SimpleEnvironment
-import we.rashchenko.networks.*
+import we.rashchenko.networks.ControlledNeuralNetwork
+import we.rashchenko.networks.Evolution
+import we.rashchenko.networks.NeuralNetworkWithInput
+import we.rashchenko.networks.StochasticNeuralNetwork
 import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
@@ -26,7 +35,7 @@ import we.rashchenko.neurons.zoo.StochasticNeuronSampler
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.Vector2
 
-fun main() {
+fun main() = application {
 	val environment = SimpleEnvironment(100)
 	val nnWithInput = StochasticNeuralNetwork()
 	val controlledNN = ControlledNeuralNetwork(
@@ -34,7 +43,7 @@ fun main() {
 		ComplexController(
 			TimeController(), ActivityController()
 		),
-		0.01, 1000, 0.2
+		0.1, 1000, 0.2
 	)
 	val neuronsManager = NeuronsManager().apply {
 		add(StochasticNeuronSampler())
@@ -48,7 +57,7 @@ fun main() {
 	).apply { initialise(1000, environment) }
 	val evolution = Evolution(builder, 100, 10, 0.1)
 
-	Window {
+	Window(onCloseRequest = ::exitApplication) {
 		val programState = object {
 			val nnRunning = remember { mutableStateOf(false) }
 			val visualMode = remember { mutableStateOf(false) }
@@ -82,14 +91,14 @@ fun main() {
 			val managerStats = remember { mutableStateOf("") }
 
 			private var lastTimeStep = 0.0
-			private var lastTimeMS = timeNowMillis().toDouble()
+			private var lastTimeMS = System.currentTimeMillis().toDouble()
 			private var scoreAggregator = ExponentialMovingAverage(0.0)
 			private var tpsAggregator = ExponentialMovingAverage(0.0)
 			fun update(nn: NeuralNetworkWithInput, manager: NeuronsManager) {
 				scoreAggregator.update(
 					nn.inputNeuronIDs.sumOf { (nn.getNeuron(it)!! as InputNeuron).getInternalFeedback().value })
 				score.value = scoreAggregator.value
-				val currentTime = timeNowMillis().toDouble()
+				val currentTime = System.currentTimeMillis().toDouble()
 				tpsAggregator.update(1000 * (nn.timeStep - lastTimeStep) / (currentTime - lastTimeMS + 1))
 				ticksPerSec.value = tpsAggregator.value
 				lastTimeStep = nn.timeStep.toDouble()
