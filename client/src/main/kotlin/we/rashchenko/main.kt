@@ -19,19 +19,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import we.rashchenko.environments.SimpleEnvironment
 import we.rashchenko.networks.ControlledNeuralNetwork
-import we.rashchenko.networks.Evolution
 import we.rashchenko.networks.NeuralNetworkWithInput
 import we.rashchenko.networks.StochasticNeuralNetwork
+import we.rashchenko.networks.builders.Evolution
 import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
 import we.rashchenko.networks.controllers.TimeController
-import we.rashchenko.neurons.InputNeuron
 import we.rashchenko.neurons.NeuronsManager
-import we.rashchenko.neurons.zoo.HebbianAngryNeuronSampler
-import we.rashchenko.neurons.zoo.HebbianHappyNeuronSampler
-import we.rashchenko.neurons.zoo.HebbianNeuronSampler
-import we.rashchenko.neurons.zoo.StochasticNeuronSampler
+import we.rashchenko.neurons.inputs.InputNeuron
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.Vector2
 
@@ -41,7 +37,7 @@ fun main() = application {
 	val controlledNN = ControlledNeuralNetwork(
 		nnWithInput,
 		ComplexController(
-			TimeController(), ActivityController()
+			listOf(TimeController(), ActivityController())
 		),
 		0.1, 1000, 0.2
 	)
