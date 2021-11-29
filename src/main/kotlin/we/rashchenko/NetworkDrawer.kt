@@ -3,10 +3,10 @@ package we.rashchenko
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import we.rashchenko.base.Feedback
 import we.rashchenko.networks.ControlledNeuralNetwork
 import we.rashchenko.networks.NeuralNetwork
 import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
-import we.rashchenko.utils.Feedback
 import we.rashchenko.utils.Vector2
 
 val inputColor = Color.Blue
@@ -38,11 +38,11 @@ fun NeuralNetwork.getNeuronFeedbackColors(): List<Color> {
 }
 
 fun ControlledNeuralNetwork.getControllerFeedbackColors(): List<Color> {
-	return neuronIDs.map { getFeedbackColor(getControllerFeedback(it)!!) }
+	return neuronIDs.map { getFeedbackColor(getExternalFeedback(it)!!) }
 }
 
 fun ControlledNeuralNetwork.getCollaborativeFeedbackColors(): List<Color> {
-	return neuronIDs.map { getFeedbackColor(getCollaborativeFeedback(it)!!) }
+	return neuronIDs.map { getFeedbackColor(getInternalFeedback(it)!!) }
 }
 
 fun NeuralNetworkIn2DBuilder.getConnectionsWithColor(scale: Vector2 = Vector2.ONES):

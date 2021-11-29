@@ -28,18 +28,34 @@ import we.rashchenko.networks.controllers.ComplexController
 import we.rashchenko.networks.controllers.TimeController
 import we.rashchenko.neurons.NeuronsManager
 import we.rashchenko.neurons.inputs.InputNeuron
+import we.rashchenko.neurons.zoo.HebbianAngryNeuronSampler
+import we.rashchenko.neurons.zoo.HebbianHappyNeuronSampler
+import we.rashchenko.neurons.zoo.HebbianNeuronSampler
+import we.rashchenko.neurons.zoo.StochasticNeuronSampler
 import we.rashchenko.utils.ExponentialMovingAverage
 import we.rashchenko.utils.Vector2
 
+const val ENV_TICK_PERIOD = 100
+
+const val CONTROLLER_AUDIT_PROBABILITY = 0.1
+const val CONTROLLER_UPDATE_FEEDBACK_PERIOD = 1000L
+const val EXTERNAL_FEEDBACK_WEIGHT = 0.2
+
+const val NUM_NEURONS = 1000
+
+const val EVOLUTION_NEURONS_FOR_SELECTION = 100
+const val EVOLUTION_WARNINGS_BEFORE_KILL = 10
+const val EVOLUTION_PROBABILITY = 0.1
+
 fun main() = application {
-	val environment = SimpleEnvironment(100)
+	val environment = SimpleEnvironment(ENV_TICK_PERIOD)
 	val nnWithInput = StochasticNeuralNetwork()
 	val controlledNN = ControlledNeuralNetwork(
 		nnWithInput,
 		ComplexController(
 			listOf(TimeController(), ActivityController())
 		),
-		0.1, 1000, 0.2
+		CONTROLLER_AUDIT_PROBABILITY, CONTROLLER_UPDATE_FEEDBACK_PERIOD, EXTERNAL_FEEDBACK_WEIGHT
 	)
 	val neuronsManager = NeuronsManager().apply {
 		add(StochasticNeuronSampler())
@@ -50,8 +66,12 @@ fun main() = application {
 	val builder = NeuralNetworkIn2DBuilder(
 		controlledNN,
 		neuronsManager
-	).apply { initialise(1000, environment) }
-	val evolution = Evolution(builder, 100, 10, 0.1)
+	).apply {
+		addEnvironment(environment)
+		repeat(NUM_NEURONS) { addNeuron() }
+	}
+	val evolution = Evolution(builder,
+		EVOLUTION_NEURONS_FOR_SELECTION, EVOLUTION_WARNINGS_BEFORE_KILL, EVOLUTION_PROBABILITY)
 
 	Window(onCloseRequest = ::exitApplication) {
 		val programState = object {
@@ -136,7 +156,7 @@ fun main() = application {
 							delay(visualDelay)
 						}
 						info.update(nnWithInput, neuronsManager)
-						evolution.step()
+						evolution.tick()
 					} else {
 						delay(1000)
 					}
