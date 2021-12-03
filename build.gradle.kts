@@ -31,8 +31,8 @@ dependencies {
 }
 
 dependencies {
-	implementation("we.rashchenko:chnn-library:v0.1.3")
-	implementation("we.rashchenko:chnn-neurons:v0.1.3")
+	implementation("we.rashchenko:chnn-library:v0.1.4")
+	implementation("we.rashchenko:chnn-neurons:v0.1.4")
 
 	// default dependencies for Compose app
 	implementation(compose.desktop.currentOs)

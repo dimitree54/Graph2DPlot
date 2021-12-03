@@ -1,5 +1,9 @@
-package we.rashchenko
+package we.rashchenko.gui
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -97,4 +101,14 @@ fun DrawScope.drawNeuralNetwork(
 	drawNNConnections(connectionsWithColor.map { Triple(it.first.scl(scale), it.second.scl(scale), it.third) })
 	drawInputs(inputPositions.map { it.scl(scale) })
 	drawNeurons(positions.map { it.scl(scale) }, colors)
+}
+
+@Composable
+fun nnCanvas(nnState: NNState) = Canvas(modifier = Modifier.fillMaxSize()) {
+	drawNeuralNetwork(
+		nnState.coloredConnections.value,
+		nnState.inputPositions.value,
+		nnState.positions.value,
+		nnState.neuronColors.value
+	)
 }
