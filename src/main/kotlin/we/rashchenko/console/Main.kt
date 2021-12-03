@@ -1,6 +1,7 @@
 package we.rashchenko.console
 
 import we.rashchenko.World
+import we.rashchenko.neurons.getSummary
 
 fun main() {
     val world = World()

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import we.rashchenko.networks.NeuralNetworkWithInput
 import we.rashchenko.neurons.NeuronsManager
+import we.rashchenko.neurons.getSummary
 import we.rashchenko.neurons.inputs.InputNeuron
 import we.rashchenko.utils.ExponentialMovingAverage
 
@@ -29,7 +30,7 @@ class RunInfo(
         ticksPerSec.value = tpsAggregator.value
         lastTimeStep = nn.timeStep.toDouble()
         lastTimeMS = currentTime
-        managerStats.value = manager.getSummary()
+        managerStats.value = getSummary(manager.getSamplerStats())
     }
 }
 

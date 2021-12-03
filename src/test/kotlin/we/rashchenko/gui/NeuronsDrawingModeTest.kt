@@ -1,4 +1,4 @@
-package we.rashchenko
+package we.rashchenko.gui
 
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
