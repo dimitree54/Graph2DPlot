@@ -37,6 +37,11 @@ fun showButton(programState: ProgramState) =
     }
 
 @Composable
+fun infoTimeStep(runInfo: RunInfo) = Text(
+    "Time step: ${runInfo.timeStep.value}"
+)
+
+@Composable
 fun infoTPS(runInfo: RunInfo) = Text(
     "TPS: ${runInfo.ticksPerSec.value.toInt()}"
 )
@@ -61,9 +66,8 @@ fun chNNWindow(world: World, onCloseRequest: () -> Unit) = Window(onCloseRequest
             runInfo.update(world.nnWithInput, world.neuronsManager)
             if (programState.visualMode.value) {
                 nnState.update(world, programState)
-                delay(1000)  // todo hardcode
+                delay(333)  // todo hardcode
             }
-            println("tick")
         }
     }
 
@@ -71,6 +75,7 @@ fun chNNWindow(world: World, onCloseRequest: () -> Unit) = Window(onCloseRequest
         nnCanvas(nnState)
     }
     Column {
+        infoTimeStep(runInfo)
         infoTPS(runInfo)
         infoScore(runInfo)
         runButton(world, programState, ::onTick)

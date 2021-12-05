@@ -14,7 +14,8 @@ import we.rashchenko.utils.ExponentialMovingAverage
 class RunInfo(
     val score: MutableState<Double>,
     val ticksPerSec: MutableState<Double>,
-    val managerStats: MutableState<String>
+    val managerStats: MutableState<String>,
+    val timeStep: MutableState<Long>
 ) {
     private var lastTimeStep = 0.0
     private var lastTimeMS = System.currentTimeMillis().toDouble()
@@ -31,6 +32,7 @@ class RunInfo(
         lastTimeStep = nn.timeStep.toDouble()
         lastTimeMS = currentTime
         managerStats.value = getSummary(manager.getSamplerStats())
+        timeStep.value = nn.timeStep
     }
 }
 
@@ -38,5 +40,6 @@ class RunInfo(
 fun createRunInfo() = RunInfo(
     remember { mutableStateOf(0.0) },
     remember { mutableStateOf(0.0) },
-    remember { mutableStateOf("") }
+    remember { mutableStateOf("") },
+    remember { mutableStateOf(0) }
 )
