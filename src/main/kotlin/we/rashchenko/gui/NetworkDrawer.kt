@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import we.rashchenko.base.Feedback
 import we.rashchenko.networks.ControlledNeuralNetwork
 import we.rashchenko.networks.NeuralNetwork
-import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
+import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilderFixed
 import we.rashchenko.utils.Vector2
 
 val inputColor = Color.Blue
@@ -26,7 +26,7 @@ enum class NeuronsDrawingMode {
 	}
 }
 
-fun NeuralNetworkIn2DBuilder.getAllPositions(scale: Vector2 = Vector2.ONES): List<Vector2> {
+fun NeuralNetworkIn2DBuilderFixed.getAllPositions(scale: Vector2 = Vector2.ONES): List<Vector2> {
 	return neuralNetwork.neuronIDs.map { getPosition(it)!!.scl(scale) }
 }
 
@@ -34,7 +34,7 @@ fun NeuralNetwork.getActivePassiveColors(): List<Color> {
 	return neuronIDs.map { if (getNeuron(it)!!.active) colorActive else colorPassive }
 }
 
-fun NeuralNetworkIn2DBuilder.getInputPositions(scale: Vector2 = Vector2.ONES): List<Vector2> =
+fun NeuralNetworkIn2DBuilderFixed.getInputPositions(scale: Vector2 = Vector2.ONES): List<Vector2> =
 	neuralNetwork.inputNeuronIDs.map { getPosition(it)!!.scl(scale) }
 
 fun NeuralNetwork.getNeuronFeedbackColors(): List<Color> {
@@ -49,7 +49,7 @@ fun ControlledNeuralNetwork.getCollaborativeFeedbackColors(): List<Color> {
 	return neuronIDs.map { getFeedbackColor(getInternalFeedback(it)!!) }
 }
 
-fun NeuralNetworkIn2DBuilder.getConnectionsWithColor(scale: Vector2 = Vector2.ONES):
+fun NeuralNetworkIn2DBuilderFixed.getConnectionsWithColor(scale: Vector2 = Vector2.ONES):
 		List<Triple<Vector2, Vector2, Color>> =
 	neuralNetwork.connections.map { (source, receivers) ->
 		receivers.map { receiver ->

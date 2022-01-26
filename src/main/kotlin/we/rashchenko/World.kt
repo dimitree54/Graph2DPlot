@@ -5,7 +5,7 @@ import we.rashchenko.environments.SimpleEnvironment
 import we.rashchenko.networks.ControlledNeuralNetwork
 import we.rashchenko.networks.StochasticNeuralNetwork
 import we.rashchenko.networks.builders.Evolution
-import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilder
+import we.rashchenko.networks.builders.NeuralNetworkIn2DBuilderFixed
 import we.rashchenko.networks.controllers.ActivityController
 import we.rashchenko.networks.controllers.ComplexController
 import we.rashchenko.networks.controllers.TimeController
@@ -18,6 +18,7 @@ const val CONTROLLER_UPDATE_FEEDBACK_PERIOD = 1000L
 const val EXTERNAL_FEEDBACK_WEIGHT = 0.2
 
 const val NUM_NEURONS = 1000
+const val K_NEIGHBOURS_PER_NEURON = 3
 
 const val EVOLUTION_NEURONS_FOR_SELECTION = 100
 const val EVOLUTION_WARNINGS_BEFORE_KILL = 10
@@ -36,12 +37,13 @@ class World: Ticking {
         CONTROLLER_AUDIT_PROBABILITY, CONTROLLER_UPDATE_FEEDBACK_PERIOD, EXTERNAL_FEEDBACK_WEIGHT
     )
     val neuronsManager = getContestManager()
-    val builder = NeuralNetworkIn2DBuilder(
+    val builder = NeuralNetworkIn2DBuilderFixed(
         controlledNN,
-        neuronsManager
+        neuronsManager,
+        K_NEIGHBOURS_PER_NEURON
     ).apply {
-        addEnvironment(environment)
-        repeat(NUM_NEURONS) { addNeuron() }
+        addInputOutputEnvironment(environment)
+        addNeurons(NUM_NEURONS)
     }
     @Suppress("MemberVisibilityCanBePrivate")
     val evolution = Evolution(builder,

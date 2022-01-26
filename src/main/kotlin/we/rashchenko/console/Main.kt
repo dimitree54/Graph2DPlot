@@ -4,7 +4,7 @@ import we.rashchenko.World
 import we.rashchenko.neurons.SamplerStats
 import we.rashchenko.neurons.getSummary
 
-const val CONTEST_RUNS = 10
+const val CONTEST_RUNS = 16
 
 fun main() {
     val lock = Object()
