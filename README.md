@@ -5,7 +5,7 @@ To check more info about ChNN project you can visit [project page](https://dimit
 
 ## ChNN-Contest
 
-To participate, please visit [ChNN-Neurons repository](https://github.com/dimitree54/ChNN-Neurons).
+To participate, please visit [contest page](https://dimitree54.github.io/ChNN/contest/). 
 
 ## ChNN-Contest evaluation
 
@@ -40,7 +40,7 @@ More info can be found at installation section of the [ChNN-Library readme](http
 
 ## Contribute
 We would be happy to see you moving ChNN project forward. 
-More info about how to help can be found on [project page](https://dimitree54.github.io/ChNN/) 
+More info about how to help can be found on [contribution page](https://dimitree54.github.io/ChNN/contribution/)
 and in the Contribution section of [ChNN-Library readme](https://github.com/dimitree54/ChNN-Library).
 
 ## Author
