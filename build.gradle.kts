@@ -1,9 +1,10 @@
 plugins {
-	kotlin("jvm") version "1.5.31"
-	id("org.jetbrains.compose") version "1.0.0-rc4"
+	kotlin("jvm") version "1.6.10"
+	id("org.jetbrains.compose") version "1.1.1"
 }
 
 repositories {
+	mavenLocal()
 	mavenCentral()
 	maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 	maven {
@@ -31,8 +32,8 @@ dependencies {
 }
 
 dependencies {
-	implementation("we.rashchenko:chnn-library:v0.1.6")
-	implementation("we.rashchenko:chnn-neurons:v0.1.6")
+	implementation("com.badlogicgames.gdx:gdx:1.11.0")
+	implementation("org.jgrapht:jgrapht-core:1.5.1")
 
 	// default dependencies for Compose app
 	implementation(compose.desktop.currentOs)

@@ -4,35 +4,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
-import we.rashchenko.World
-import we.rashchenko.utils.Vector2
+import org.jgrapht.Graph
+import we.rashchenko.graph.Colored2D
+import we.rashchenko.graph.ColoredEdge2D
 
 class NNState(
-    val inputPositions: MutableState<List<Vector2>>,
-    val positions: MutableState<List<Vector2>>,
-    val coloredConnections: MutableState<List<Triple<Vector2, Vector2, Color>>>,
-    val neuronColors: MutableState<List<Color>>
+    val nodes: MutableState<Collection<Colored2D>>, val edges: MutableState<Collection<ColoredEdge2D>>
 ) {
-    fun update(
-        world: World, programState: ProgramState
-    ) {
-        inputPositions.value = world.builder.getInputPositions()
-        positions.value = world.builder.getAllPositions()
-        neuronColors.value = when (programState.neuronsMode.value) {
-            NeuronsDrawingMode.FEEDBACK -> world.controlledNN.getNeuronFeedbackColors()
-            NeuronsDrawingMode.EXTERNAL_FEEDBACK -> world.controlledNN.getControllerFeedbackColors()
-            NeuronsDrawingMode.INTERNAL_FEEDBACK -> world.controlledNN.getCollaborativeFeedbackColors()
-            else -> world.controlledNN.getActivePassiveColors()
-        }
-        coloredConnections.value = world.builder.getConnectionsWithColor()
+    fun update(graph: Graph<Colored2D, ColoredEdge2D>) {
+        nodes.value = graph.vertexSet()
+        edges.value = graph.edgeSet()
+            .map { ColoredEdge2D(it.color, graph.getEdgeSource(it).position, graph.getEdgeTarget(it).position) }
     }
 }
 
 @Composable
-fun createNNState() = NNState(
-    remember { mutableStateOf(emptyList()) },
-    remember { mutableStateOf(emptyList()) },
-    remember { mutableStateOf(emptyList()) },
-    remember { mutableStateOf(emptyList()) }
-)
+fun createNNState(graph: Graph<Colored2D, ColoredEdge2D>) = NNState(remember { mutableStateOf(emptyList()) },
+    remember { mutableStateOf(emptyList()) }).also { it.update(graph) }
