@@ -4,12 +4,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.application
 import com.badlogic.gdx.math.Vector2
 import org.jgrapht.graph.DefaultDirectedGraph
+import we.rashchenko.graph.Colored
 import we.rashchenko.graph.Colored2D
-import we.rashchenko.graph.ColoredEdge2D
+import we.rashchenko.graph.ColoredSimple
 
 
 fun main() = application {
-    val testGraph = DefaultDirectedGraph<Colored2D, ColoredEdge2D>(ColoredEdge2D::class.java)
+    val testGraph = DefaultDirectedGraph<Colored2D, Colored>(ColoredSimple::class.java)
     val v1 = object : Colored2D {
         override val color = Color.Red
         override val position = Vector2(0.3f, 0.3f)
@@ -25,7 +26,7 @@ fun main() = application {
     testGraph.addVertex(v1)
     testGraph.addVertex(v2)
     testGraph.addVertex(v3)
-    testGraph.addEdge(v1, v2)
-    testGraph.addEdge(v1, v3)
+    testGraph.addEdge(v1, v2, ColoredSimple(Color.Gray))
+    testGraph.addEdge(v1, v3, ColoredSimple(Color.Black))
     chNNWindow(testGraph, onCloseRequest = ::exitApplication, onTick = {})
 }
