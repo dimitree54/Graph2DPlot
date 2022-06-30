@@ -3,10 +3,9 @@ package we.rashchenko.gui
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.application
 import com.badlogic.gdx.math.Vector2
+import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultDirectedGraph
-import we.rashchenko.graph.Colored
-import we.rashchenko.graph.Colored2D
-import we.rashchenko.graph.ColoredSimple
+import we.rashchenko.graph.*
 
 
 fun main() = application {
@@ -28,5 +27,10 @@ fun main() = application {
     testGraph.addVertex(v3)
     testGraph.addEdge(v1, v2, ColoredSimple(Color.Gray))
     testGraph.addEdge(v1, v3, ColoredSimple(Color.Black))
-    chNNWindow(testGraph, onCloseRequest = ::exitApplication, onTick = {})
+    chNNWindow(testGraph,
+        onCloseRequest = ::exitApplication,
+        onTick = {
+            @Suppress("UNCHECKED_CAST")
+            (testGraph as Graph<Positioned2D, Colored>).spread()
+        })
 }
