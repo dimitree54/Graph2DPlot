@@ -22,8 +22,8 @@ private fun getShift(vertex: Vector2, neighbours: Collection<Vector2>): Vector2 
     return shift
 }
 
-fun <T> Graph<Positioned2D, T>.spread() {
-    this.vertexSet().forEach { vertex ->
+fun <T> Graph<Positioned2D, T>.spread(locked: Set<Positioned2D> = emptySet()) {
+    this.vertexSet().filter{it !in locked}.forEach { vertex ->
         val neighbours =
             incomingEdgesOf(vertex).map { getEdgeSource(it).position } + outgoingEdgesOf(vertex).map { getEdgeTarget(it).position }
         val shift = getShift(vertex.position, neighbours)
