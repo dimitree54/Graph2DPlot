@@ -1,1 +1,1 @@
-rootProject.name = "Graph2DPlot"
+rootProject.name = "graph2d-plot"
