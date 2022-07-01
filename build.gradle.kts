@@ -40,7 +40,7 @@ publishing {
 	repositories {
 		maven {
 			name = "GitHubPackages"
-			url = uri("https://maven.pkg.github.com/dimitree54/Graph2DPlot.git")
+			url = uri("https://maven.pkg.github.com/dimitree54/Graph2DPlot")
 			credentials {
 				username = System.getenv("GITHUB_ACTOR")
 				password = System.getenv("GITHUB_TOKEN")
