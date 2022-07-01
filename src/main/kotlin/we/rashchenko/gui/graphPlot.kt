@@ -7,7 +7,7 @@ import we.rashchenko.graph.Colored
 import we.rashchenko.graph.Colored2D
 
 @Composable
-fun chNNWindow(graph: Graph<Colored2D, Colored>, onTick: () -> Unit, onCloseRequest: () -> Unit) {
+fun graphPlot(graph: Graph<Colored2D, Colored>, onTick: () -> Unit, onCloseRequest: () -> Unit) {
     val nnState = createNNState(graph)
     return Window(onCloseRequest = onCloseRequest, onKeyEvent = {
         onTick()

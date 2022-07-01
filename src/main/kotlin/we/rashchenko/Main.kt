@@ -1,4 +1,4 @@
-package we.rashchenko.gui
+package we.rashchenko
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.application
@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import org.jgrapht.Graph
 import org.jgrapht.graph.DefaultDirectedGraph
 import we.rashchenko.graph.*
+import we.rashchenko.gui.graphPlot
 
 
 fun main() = application {
@@ -27,7 +28,7 @@ fun main() = application {
     testGraph.addVertex(v3)
     testGraph.addEdge(v1, v2, ColoredSimple(Color.Gray))
     testGraph.addEdge(v1, v3, ColoredSimple(Color.Black))
-    chNNWindow(testGraph,
+    graphPlot(testGraph,
         onCloseRequest = ::exitApplication,
         onTick = {
             @Suppress("UNCHECKED_CAST")
