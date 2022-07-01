@@ -1,1 +1,1 @@
-rootProject.name = "ChNN"
+rootProject.name = "Graph2DPlot"
